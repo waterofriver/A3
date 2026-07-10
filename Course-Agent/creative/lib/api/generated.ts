@@ -113,6 +113,56 @@ export interface components {
             /** Details */
             details?: unknown | null;
         };
+        /** GatewayEvent */
+        GatewayEvent: {
+            /**
+             * Event
+             * @enum {string}
+             */
+            event: "task.started" | "agent.started" | "task.progress" | "content.delta" | "profile.patch" | "media.ready" | "resource.ready" | "task.completed" | "task.failed" | "heartbeat";
+            /** Task Id */
+            task_id: string;
+            /**
+             * Seq
+             * @default 0
+             */
+            seq: number;
+            /** Trace Id */
+            trace_id: string;
+            /** Current Agent */
+            current_agent?: string | null;
+            /**
+             * Progress
+             * @default 0
+             */
+            progress: number;
+            /** Resource Type */
+            resource_type?: string | null;
+            /**
+             * Content
+             * @default
+             */
+            content: string;
+            /** Media Url */
+            media_url?: string | null;
+            /**
+             * Finish Flag
+             * @default false
+             */
+            finish_flag: boolean;
+            /** Resource Ids */
+            resource_ids?: string[];
+            /** Profile Patch */
+            profile_patch?: {
+                [key: string]: unknown;
+            } | null;
+            error?: components["schemas"]["GatewayError"] | null;
+            /**
+             * Demo Mode
+             * @default false
+             */
+            demo_mode: boolean;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -320,13 +370,14 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful Response */
+            /** @description GatewayEvent SSE 流 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["GatewayEvent"];
+                    "text/event-stream": unknown;
                 };
             };
             /** @description 统一错误响应 */

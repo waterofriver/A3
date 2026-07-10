@@ -13,12 +13,22 @@ from app.schemas.profile import (
     UserInfoData,
     UserInfoResponse,
 )
+from app.schemas.task import GatewayEvent
 from app.services.profile_service import ProfileService
 
 router = APIRouter(tags=["profile"])
 
 
-@router.post("/api/chat/profile")
+@router.post(
+    "/api/chat/profile",
+    responses={
+        200: {
+            "model": GatewayEvent,
+            "description": "GatewayEvent SSE 流",
+            "content": {"text/event-stream": {}},
+        }
+    },
+)
 def chat_profile(
     payload: ProfileChatRequest,
     request: Request,

@@ -3,3 +3,4 @@ def test_openapi_includes_normalized_error_envelope(client):
 
     assert "ErrorResponse" in schemas
     assert "GatewayError" in schemas
+    assert "GatewayEvent" in schemas
