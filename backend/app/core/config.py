@@ -13,3 +13,8 @@ class Settings(BaseSettings):
     remote_agent_api_key: str = ""
     remote_agent_timeout_seconds: int = 120
     allow_mock_fallback: bool = False
+    web_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+
+    @property
+    def allowed_web_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.web_origins.split(",") if origin.strip()]

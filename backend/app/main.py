@@ -2,6 +2,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.agents.mock import MockAgentProvider
 from app.api.routes.health import router as health_router
@@ -40,6 +41,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.db = db
     app.state.agent_provider = (
         MockAgentProvider(resolved) if resolved.agent_mode == "mock" else None
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=resolved.allowed_web_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["X-Task-ID", "X-Trace-ID"],
     )
     app.add_middleware(TraceIdMiddleware)
     register_error_handlers(app)
