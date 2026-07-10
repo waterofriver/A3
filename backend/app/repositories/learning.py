@@ -50,7 +50,7 @@ class LearningRepository:
                 LearningPath.user_id == user_id,
                 LearningPath.course_name == course_name,
                 LearningPath.status == "active",
-            )
+            ).order_by(LearningPath.version.desc())
         )
 
     def replace_nodes(self, path_id: str, nodes: list[dict]) -> list[LearningPathNode]:

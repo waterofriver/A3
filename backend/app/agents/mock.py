@@ -3,8 +3,9 @@ from collections.abc import AsyncIterator
 
 from app.agents.base import AgentProvider, ResourceAgentEvent, ResourceDraft
 from app.core.config import Settings
+from app.schemas.learning import LearningPathDraft, LearningPathNodeDraft
 from app.schemas.profile import StudentProfileData
-from app.schemas.resource import ResourceType
+from app.schemas.resource import ResourceSummary, ResourceType
 from app.schemas.task import GatewayEvent
 
 
@@ -230,4 +231,44 @@ class MockAgentProvider(AgentProvider):
                 "duration_seconds": 180,
             },
             media_url=None,
+        )
+
+    async def build_learning_path(
+        self,
+        *,
+        user_id: str,
+        course_name: str,
+        profile: StudentProfileData,
+        resources: list[ResourceSummary],
+    ) -> LearningPathDraft:
+        resource_by_type = {resource.resource_type: resource.id for resource in resources}
+        return LearningPathDraft(
+            nodes=[
+                LearningPathNodeDraft(
+                    stage_name="基础补全",
+                    difficulty="基础",
+                    resource_id=resource_by_type.get("handout"),
+                ),
+                LearningPathNodeDraft(
+                    stage_name="知识点学习",
+                    difficulty="进阶",
+                    resource_id=resource_by_type.get("mindmap")
+                    or resource_by_type.get("handout"),
+                ),
+                LearningPathNodeDraft(
+                    stage_name="习题训练",
+                    difficulty="巩固",
+                    resource_id=resource_by_type.get("quiz"),
+                ),
+                LearningPathNodeDraft(
+                    stage_name="代码实操",
+                    difficulty="实操",
+                    resource_id=resource_by_type.get("code"),
+                ),
+                LearningPathNodeDraft(
+                    stage_name="拓展视频",
+                    difficulty="拓展",
+                    resource_id=resource_by_type.get("video"),
+                ),
+            ]
         )

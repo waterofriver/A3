@@ -4,7 +4,8 @@ from collections.abc import AsyncIterator
 from pydantic import BaseModel, Field
 
 from app.schemas.profile import StudentProfileData
-from app.schemas.resource import ResourceType
+from app.schemas.learning import LearningPathDraft
+from app.schemas.resource import ResourceSummary, ResourceType
 from app.schemas.task import GatewayEvent
 
 
@@ -48,4 +49,15 @@ class AgentProvider(ABC):
         weak_point: str,
         resource_types: list[ResourceType],
     ) -> AsyncIterator[ResourceAgentEvent]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def build_learning_path(
+        self,
+        *,
+        user_id: str,
+        course_name: str,
+        profile: StudentProfileData,
+        resources: list[ResourceSummary],
+    ) -> LearningPathDraft:
         raise NotImplementedError
