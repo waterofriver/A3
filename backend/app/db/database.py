@@ -18,6 +18,8 @@ class Database:
         self._session_factory = sessionmaker(self.engine, expire_on_commit=False)
 
     def create_schema(self) -> None:
+        from app.db import models  # noqa: F401
+
         Base.metadata.create_all(self.engine)
 
     @contextmanager
