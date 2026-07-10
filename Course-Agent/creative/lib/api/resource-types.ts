@@ -64,31 +64,41 @@ type ResourceBase = {
   created_at: string | null
 }
 
+export type HandoutResourceDetail = ResourceBase & {
+  resource_type: "handout"
+  payload: { markdown: string }
+}
+
+export type MindMapResourceDetail = ResourceBase & {
+  resource_type: "mindmap"
+  payload: { nodes: MindMapNode[] }
+}
+
+export type QuizResourceDetail = ResourceBase & {
+  resource_type: "quiz"
+  payload: { questions: QuizQuestion[] }
+}
+
+export type CodeResourceDetail = ResourceBase & {
+  resource_type: "code"
+  payload: { language: string; code: string; description: string }
+}
+
+export type VideoResourceDetail = ResourceBase & {
+  resource_type: "video"
+  payload: {
+    summary: string
+    poster_url: string
+    duration_seconds: number
+  }
+}
+
 export type ResourceDetail =
-  | (ResourceBase & {
-      resource_type: "handout"
-      payload: { markdown: string }
-    })
-  | (ResourceBase & {
-      resource_type: "mindmap"
-      payload: { nodes: MindMapNode[] }
-    })
-  | (ResourceBase & {
-      resource_type: "quiz"
-      payload: { questions: QuizQuestion[] }
-    })
-  | (ResourceBase & {
-      resource_type: "code"
-      payload: { language: string; code: string; description: string }
-    })
-  | (ResourceBase & {
-      resource_type: "video"
-      payload: {
-        summary: string
-        poster_url: string
-        duration_seconds: number
-      }
-    })
+  | HandoutResourceDetail
+  | MindMapResourceDetail
+  | QuizResourceDetail
+  | CodeResourceDetail
+  | VideoResourceDetail
 
 export type ResourceSummary = Omit<ResourceBase, "task_id" | "course_name"> & {
   task_id: string

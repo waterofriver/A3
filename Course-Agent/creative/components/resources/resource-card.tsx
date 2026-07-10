@@ -6,8 +6,10 @@ import { CodeBlock } from "@/components/resources/code-block"
 import { MarkdownRenderer } from "@/components/resources/markdown-renderer"
 import { MediaCard } from "@/components/resources/media-card"
 import { MindMapViewer } from "@/components/resources/mind-map-viewer"
+import { QuizPlayer } from "@/components/resources/quiz-player"
 import { VideoPlayer } from "@/components/resources/video-player"
 import type { ResourceDetail, ResourceType } from "@/lib/api/resource-types"
+import { getUserId } from "@/lib/session/user-session"
 
 const labels: Record<ResourceType, string> = {
   handout: "讲义文档",
@@ -56,15 +58,7 @@ function ResourceBody({ resource }: { resource: ResourceDetail }) {
   if (resource.resource_type === "mindmap") {
     return <MindMapViewer nodes={resource.payload.nodes} />
   }
-  return (
-    <div className="space-y-3">
-      {resource.payload.questions.map((question, index) => (
-        <div className="border-b pb-3 text-sm text-[#46556c]" key={question.id}>
-          {index + 1}. {question.prompt}
-        </div>
-      ))}
-    </div>
-  )
+  return <QuizPlayer resource={resource} userId={getUserId() ?? ""} />
 }
 
 export function ResourceCard({ resource }: { resource: ResourceDetail }) {
