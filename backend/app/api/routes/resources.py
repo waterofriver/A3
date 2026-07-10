@@ -1,11 +1,75 @@
-from fastapi import APIRouter, Header, Query, Request
+from fastapi import APIRouter, Depends, Header, Query, Request, status
 from fastapi.responses import StreamingResponse
 
+from app.agents.base import AgentProvider
+from app.api.dependencies import get_agent_provider
 from app.core.errors import AppError
 from app.repositories.tasks import TaskRepository
+from app.schemas.resource import (
+    ResourceDetailResponse,
+    ResourceGenerateRequest,
+    ResourceListData,
+    ResourceListResponse,
+    TaskAcceptedResponse,
+)
+from app.services.resource_service import ResourceService
 from app.services.task_event_stream import stream_persisted_task_events
 
 router = APIRouter(prefix="/api/resource", tags=["resources"])
+
+
+def get_resource_service(request: Request, provider: AgentProvider) -> ResourceService:
+    return ResourceService(
+        request.app.state.db,
+        provider,
+        request.app.state.task_manager,
+        demo_mode=request.app.state.settings.agent_mode == "mock",
+    )
+
+
+@router.post(
+    "/generate",
+    response_model=TaskAcceptedResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def generate_resources(
+    payload: ResourceGenerateRequest,
+    request: Request,
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
+    provider: AgentProvider = Depends(get_agent_provider),
+) -> TaskAcceptedResponse:
+    data = get_resource_service(request, provider).submit(
+        payload,
+        idempotency_key=idempotency_key,
+        trace_id=request.state.trace_id,
+    )
+    return TaskAcceptedResponse(data=data, trace_id=request.state.trace_id)
+
+
+@router.get("/list", response_model=ResourceListResponse)
+def list_resources(
+    user_id: str,
+    course_name: str,
+    request: Request,
+    provider: AgentProvider = Depends(get_agent_provider),
+) -> ResourceListResponse:
+    resources = get_resource_service(request, provider).list_for_course(
+        user_id, course_name
+    )
+    return ResourceListResponse(
+        data=ResourceListData(resources=resources),
+        trace_id=request.state.trace_id,
+    )
+
+
+@router.get("/detail/{resource_id}", response_model=ResourceDetailResponse)
+def resource_detail(
+    resource_id: str,
+    request: Request,
+    provider: AgentProvider = Depends(get_agent_provider),
+) -> ResourceDetailResponse:
+    detail = get_resource_service(request, provider).get_detail(resource_id)
+    return ResourceDetailResponse(data=detail, trace_id=request.state.trace_id)
 
 
 @router.get("/progress/{task_id}")

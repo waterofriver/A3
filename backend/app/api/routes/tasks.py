@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request, status
 
+from app.agents.base import AgentProvider
+from app.api.dependencies import get_agent_provider
 from app.core.errors import AppError
 from app.repositories.tasks import TaskRepository
+from app.schemas.resource import TaskAcceptedResponse
+from app.services.resource_service import ResourceService
 
 router = APIRouter(prefix="/api/task", tags=["tasks"])
 
@@ -29,3 +33,23 @@ def get_task(task_id: str, request: Request) -> dict:
             "error": task.error,
         }
     return {"data": data, "trace_id": request.state.trace_id}
+
+
+@router.post(
+    "/{task_id}/retry",
+    response_model=TaskAcceptedResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def retry_task(
+    task_id: str,
+    request: Request,
+    provider: AgentProvider = Depends(get_agent_provider),
+) -> TaskAcceptedResponse:
+    service = ResourceService(
+        request.app.state.db,
+        provider,
+        request.app.state.task_manager,
+        demo_mode=request.app.state.settings.agent_mode == "mock",
+    )
+    data = service.retry(task_id, trace_id=request.state.trace_id)
+    return TaskAcceptedResponse(data=data, trace_id=request.state.trace_id)
