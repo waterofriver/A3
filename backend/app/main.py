@@ -12,6 +12,7 @@ from app.core.config import Settings
 from app.core.errors import register_error_handlers
 from app.core.logging import TraceIdMiddleware
 from app.db.database import Database
+from app.schemas.common import ErrorResponse
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -24,7 +25,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         yield
         db.dispose()
 
-    app = FastAPI(title="Zhixue Engine Gateway", version="0.1.0", lifespan=lifespan)
+    error_response = {"model": ErrorResponse, "description": "统一错误响应"}
+    app = FastAPI(
+        title="Zhixue Engine Gateway",
+        version="0.1.0",
+        lifespan=lifespan,
+        responses={
+            400: error_response,
+            404: error_response,
+            503: error_response,
+        },
+    )
     app.state.settings = resolved
     app.state.db = db
     app.state.agent_provider = (

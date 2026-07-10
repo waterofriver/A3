@@ -538,6 +538,8 @@ artifacts/test-results/
 artifacts/logs/
 Course-Agent/creative/playwright-report/
 Course-Agent/creative/test-results/
+!Course-Agent/creative/lib/
+!Course-Agent/creative/lib/**
 mywebsite/upload/
 mywebsite/**/*.db
 !.env.example
