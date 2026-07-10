@@ -1,10 +1,11 @@
 "use client"
 
-import { Copy, Download, Film, Network, NotebookTabs } from "lucide-react"
+import { Copy, Download, Film, NotebookTabs } from "lucide-react"
 
 import { CodeBlock } from "@/components/resources/code-block"
 import { MarkdownRenderer } from "@/components/resources/markdown-renderer"
 import { MediaCard } from "@/components/resources/media-card"
+import { MindMapViewer } from "@/components/resources/mind-map-viewer"
 import { VideoPlayer } from "@/components/resources/video-player"
 import type { ResourceDetail, ResourceType } from "@/lib/api/resource-types"
 
@@ -53,14 +54,7 @@ function ResourceBody({ resource }: { resource: ResourceDetail }) {
     )
   }
   if (resource.resource_type === "mindmap") {
-    return (
-      <div className="grid min-h-[280px] place-items-center border border-dashed border-[#cbd5e3] bg-[#f8fafc]">
-        <div className="text-center">
-          <Network aria-hidden="true" className="mx-auto h-7 w-7 text-[#237964]" />
-          <p className="mt-3 text-sm font-semibold text-[#46556c]">{resource.payload.nodes.length} 个知识节点</p>
-        </div>
-      </div>
-    )
+    return <MindMapViewer nodes={resource.payload.nodes} />
   }
   return (
     <div className="space-y-3">
