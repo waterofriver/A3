@@ -47,6 +47,34 @@ export const emptyResourceTask: ResourceTaskState = {
   resourceIds: [],
 }
 
+export function createResourceTaskState(taskId?: string): ResourceTaskState {
+  return {
+    ...emptyResourceTask,
+    taskId,
+    byType: emptyByType(),
+    resourceIds: [],
+  }
+}
+
+const activeTaskKey = (userId: string, courseName: string) =>
+  `zhixue_resource_task:${encodeURIComponent(userId)}:${encodeURIComponent(courseName)}`
+
+export function rememberActiveResourceTask(
+  userId: string,
+  courseName: string,
+  taskId: string,
+) {
+  window.localStorage.setItem(activeTaskKey(userId, courseName), taskId)
+}
+
+export function readActiveResourceTask(userId: string, courseName: string) {
+  return window.localStorage.getItem(activeTaskKey(userId, courseName))
+}
+
+export function clearActiveResourceTask(userId: string, courseName: string) {
+  window.localStorage.removeItem(activeTaskKey(userId, courseName))
+}
+
 const appendUnique = (current: string[], incoming: string[]) => [
   ...current,
   ...incoming.filter((id) => !current.includes(id)),

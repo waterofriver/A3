@@ -53,6 +53,7 @@ def test_resource_generation_persists_selected_types_and_detail(client):
 
     task = wait_for_task(client, task_id)
     assert task["status"] == "succeeded"
+    assert task["request"]["resource_type_list"] == ["handout", "video"]
 
     history = client.get(
         "/api/resource/list",

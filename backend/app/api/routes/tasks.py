@@ -29,6 +29,7 @@ def get_task(task_id: str, request: Request) -> dict:
             "status": task.status,
             "progress": task.progress,
             "current_agent": task.current_agent,
+            "request": task.request_snapshot,
             "result": task.result_snapshot,
             "error": task.error,
         }

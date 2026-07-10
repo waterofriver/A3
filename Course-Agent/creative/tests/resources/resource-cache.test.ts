@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest"
 
 import {
   applyResourceEvent,
+  clearActiveResourceTask,
+  createResourceTaskState,
   emptyResourceTask,
+  readActiveResourceTask,
+  rememberActiveResourceTask,
 } from "@/lib/query/resource-cache"
 import type { ResourceGatewayEvent } from "@/lib/api/resource-types"
 
@@ -50,5 +54,18 @@ describe("applyResourceEvent", () => {
 
     expect(duplicate).toBe(first)
     expect(duplicate.byType.code.content).toBe("first")
+  })
+
+  it("stores only the active task pointer for refresh recovery", () => {
+    localStorage.clear()
+    rememberActiveResourceTask("student-1", "机器人操作系统", "task-9")
+
+    expect(readActiveResourceTask("student-1", "机器人操作系统")).toBe(
+      "task-9",
+    )
+    expect(createResourceTaskState("task-9").taskId).toBe("task-9")
+
+    clearActiveResourceTask("student-1", "机器人操作系统")
+    expect(readActiveResourceTask("student-1", "机器人操作系统")).toBeNull()
   })
 })
