@@ -2,6 +2,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from app.schemas.resource import ResourceType
+
 EventType = Literal[
     "task.started",
     "agent.started",
@@ -30,7 +32,7 @@ class GatewayEvent(BaseModel):
     trace_id: str
     current_agent: str | None = None
     progress: int = Field(default=0, ge=0, le=100)
-    resource_type: str | None = None
+    resource_type: ResourceType | None = None
     content: str = ""
     media_url: str | None = None
     finish_flag: bool = False
