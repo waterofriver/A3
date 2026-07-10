@@ -5,6 +5,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
+  workers: 1,
   reporter: "list",
   outputDir: "test-results",
   use: {
@@ -31,7 +32,7 @@ export default defineConfig({
       env: {
         AGENT_MODE: "mock",
         DATABASE_URL: "sqlite:///../../backend/data/zhixue-e2e.db",
-        MOCK_EVENT_DELAY_MS: "5",
+        MOCK_EVENT_DELAY_MS: "100",
       },
       reuseExistingServer: true,
       timeout: 120_000,

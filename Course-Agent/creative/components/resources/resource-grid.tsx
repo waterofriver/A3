@@ -57,6 +57,7 @@ export function ResourceGrid({
                   {resource.title}
                 </h3>
                 <Link
+                  aria-label={`查看${meta.label}：${resource.title}`}
                   className="mt-4 inline-flex text-xs font-semibold text-[#2457d6] hover:text-[#183fa0]"
                   href={`/resources/${resource.id}`}
                 >

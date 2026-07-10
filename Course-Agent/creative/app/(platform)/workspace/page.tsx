@@ -204,6 +204,15 @@ export default function WorkspacePage() {
         </div>
       ) : null}
 
+      {task.status === "succeeded" ? (
+        <div
+          className="mt-4 border border-[#c9dda9] bg-[#f4f9ea] px-4 py-3 text-sm font-semibold text-[#55741f]"
+          role="status"
+        >
+          全部资源已生成
+        </div>
+      ) : null}
+
       {error || coursesQuery.error || historyQuery.error ? (
         <div className="mt-4">
           <ErrorNotice

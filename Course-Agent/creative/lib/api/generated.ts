@@ -21,6 +21,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/course/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Courses */
+        get: operations["list_courses_api_course_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/quiz/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Quiz */
+        post: operations["submit_quiz_api_quiz_submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/learning/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record Learning Events */
+        post: operations["record_learning_events_api_learning_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/path/get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Learning Path */
+        get: operations["get_learning_path_api_path_get_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/user/info": {
         parameters: {
             query?: never;
@@ -72,6 +140,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/resource/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Resources */
+        post: operations["generate_resources_api_resource_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resource/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Resources */
+        get: operations["list_resources_api_resource_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resource/detail/{resource_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resource Detail */
+        get: operations["resource_detail_api_resource_detail__resource_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resource/progress/{task_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resource Progress */
+        get: operations["resource_progress_api_resource_progress__task_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/task/{task_id}": {
         parameters: {
             query?: never;
@@ -89,10 +225,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/task/{task_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry Task */
+        post: operations["retry_task_api_task__task_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** CodePayload */
+        CodePayload: {
+            /** Language */
+            language: string;
+            /** Code */
+            code: string;
+            /** Description */
+            description: string;
+        };
+        /** CodeResourceDetail */
+        CodeResourceDetail: {
+            /** Id */
+            id: string;
+            /** Task Id */
+            task_id?: string | null;
+            /** Course Name */
+            course_name?: string | null;
+            /** Title */
+            title: string;
+            /** Media Url */
+            media_url?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            resource_type: "code";
+            payload: components["schemas"]["CodePayload"];
+        };
+        /** CourseListResponse */
+        CourseListResponse: {
+            /** Data */
+            data: components["schemas"]["CourseSummary"][];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** CourseSummary */
+        CourseSummary: {
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Content Ready */
+            content_ready: boolean;
+            /** Is Demo */
+            is_demo: boolean;
+        };
         /** ErrorResponse */
         ErrorResponse: {
             error: components["schemas"]["GatewayError"];
@@ -137,7 +338,7 @@ export interface components {
              */
             progress: number;
             /** Resource Type */
-            resource_type?: string | null;
+            resource_type?: ("handout" | "mindmap" | "quiz" | "code" | "video") | null;
             /**
              * Content
              * @default
@@ -168,6 +369,141 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HandoutPayload */
+        HandoutPayload: {
+            /** Markdown */
+            markdown: string;
+        };
+        /** HandoutResourceDetail */
+        HandoutResourceDetail: {
+            /** Id */
+            id: string;
+            /** Task Id */
+            task_id?: string | null;
+            /** Course Name */
+            course_name?: string | null;
+            /** Title */
+            title: string;
+            /** Media Url */
+            media_url?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            resource_type: "handout";
+            payload: components["schemas"]["HandoutPayload"];
+        };
+        /** LearningEventBatchData */
+        LearningEventBatchData: {
+            /** Accepted */
+            accepted: number;
+        };
+        /** LearningEventBatchRequest */
+        LearningEventBatchRequest: {
+            /** User Id */
+            user_id: string;
+            /** Course Name */
+            course_name: string;
+            /** Events */
+            events: components["schemas"]["LearningEventInput"][];
+        };
+        /** LearningEventBatchResponse */
+        LearningEventBatchResponse: {
+            data: components["schemas"]["LearningEventBatchData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** LearningEventInput */
+        LearningEventInput: {
+            /**
+             * Event Type
+             * @enum {string}
+             */
+            event_type: "resource_opened" | "resource_closed" | "path_node_completed" | "question_asked" | "video_progress";
+            /** Resource Id */
+            resource_id?: string | null;
+            /** Path Node Id */
+            path_node_id?: string | null;
+            /** Client Started At */
+            client_started_at?: string | null;
+            /** Client Ended At */
+            client_ended_at?: string | null;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            };
+        };
+        /** LearningPathData */
+        LearningPathData: {
+            /** Id */
+            id: string;
+            /** User Id */
+            user_id: string;
+            /** Course Name */
+            course_name: string;
+            /** Version */
+            version: number;
+            /** Nodes */
+            nodes: components["schemas"]["LearningPathNodeData"][];
+        };
+        /** LearningPathNodeData */
+        LearningPathNodeData: {
+            /** Id */
+            id: string;
+            /** Position */
+            position: number;
+            /** Stage Name */
+            stage_name: string;
+            /** Difficulty */
+            difficulty: string;
+            /** Resource Id */
+            resource_id?: string | null;
+            /** Completed At */
+            completed_at?: string | null;
+        };
+        /** LearningPathResponse */
+        LearningPathResponse: {
+            data: components["schemas"]["LearningPathData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** MindMapNode */
+        MindMapNode: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Parent Id */
+            parent_id?: string | null;
+        };
+        /** MindMapPayload */
+        MindMapPayload: {
+            /** Nodes */
+            nodes: components["schemas"]["MindMapNode"][];
+        };
+        /** MindMapResourceDetail */
+        MindMapResourceDetail: {
+            /** Id */
+            id: string;
+            /** Task Id */
+            task_id?: string | null;
+            /** Course Name */
+            course_name?: string | null;
+            /** Title */
+            title: string;
+            /** Media Url */
+            media_url?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            resource_type: "mindmap";
+            payload: components["schemas"]["MindMapPayload"];
+        };
         /** ProfileChatRequest */
         ProfileChatRequest: {
             /** User Id */
@@ -179,6 +515,144 @@ export interface components {
         ProfileConfirmRequest: {
             /** User Id */
             user_id: string;
+        };
+        /** QuizPayload */
+        QuizPayload: {
+            /** Questions */
+            questions: components["schemas"]["QuizQuestion"][];
+        };
+        /** QuizQuestion */
+        QuizQuestion: {
+            /** Id */
+            id: string;
+            /**
+             * Question Type
+             * @enum {string}
+             */
+            question_type: "choice" | "blank" | "programming";
+            /** Prompt */
+            prompt: string;
+            /** Options */
+            options?: string[];
+            /** Answer */
+            answer: string;
+            /** Explanation */
+            explanation: string;
+        };
+        /** QuizQuestionResult */
+        QuizQuestionResult: {
+            /** Question Id */
+            question_id: string;
+            /** Correct */
+            correct: boolean;
+            /** Submitted Answer */
+            submitted_answer: string;
+            /** Expected Answer */
+            expected_answer: string;
+            /** Explanation */
+            explanation: string;
+        };
+        /** QuizResourceDetail */
+        QuizResourceDetail: {
+            /** Id */
+            id: string;
+            /** Task Id */
+            task_id?: string | null;
+            /** Course Name */
+            course_name?: string | null;
+            /** Title */
+            title: string;
+            /** Media Url */
+            media_url?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            resource_type: "quiz";
+            payload: components["schemas"]["QuizPayload"];
+        };
+        /** QuizSubmitData */
+        QuizSubmitData: {
+            /** Attempt Id */
+            attempt_id: string;
+            /** Score */
+            score: number;
+            /** Results */
+            results: components["schemas"]["QuizQuestionResult"][];
+        };
+        /** QuizSubmitRequest */
+        QuizSubmitRequest: {
+            /** User Id */
+            user_id: string;
+            /** Resource Id */
+            resource_id: string;
+            /** Answers */
+            answers: {
+                [key: string]: string;
+            };
+        };
+        /** QuizSubmitResponse */
+        QuizSubmitResponse: {
+            data: components["schemas"]["QuizSubmitData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** ResourceDetailResponse */
+        ResourceDetailResponse: {
+            /** Data */
+            data: components["schemas"]["HandoutResourceDetail"] | components["schemas"]["MindMapResourceDetail"] | components["schemas"]["QuizResourceDetail"] | components["schemas"]["CodeResourceDetail"] | components["schemas"]["VideoResourceDetail"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** ResourceGenerateRequest */
+        ResourceGenerateRequest: {
+            /** User Id */
+            user_id: string;
+            /** Course Name */
+            course_name: string;
+            /**
+             * Weak Point
+             * @default
+             */
+            weak_point: string;
+            /** Resource Type List */
+            resource_type_list: ("handout" | "mindmap" | "quiz" | "code" | "video")[];
+        };
+        /** ResourceListData */
+        ResourceListData: {
+            /** Resources */
+            resources: components["schemas"]["ResourceSummary"][];
+        };
+        /** ResourceListResponse */
+        ResourceListResponse: {
+            data: components["schemas"]["ResourceListData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** ResourceSummary */
+        ResourceSummary: {
+            /** Id */
+            id: string;
+            /** Task Id */
+            task_id: string;
+            /** Course Name */
+            course_name: string;
+            /**
+             * Resource Type
+             * @enum {string}
+             */
+            resource_type: "handout" | "mindmap" | "quiz" | "code" | "video";
+            /** Title */
+            title: string;
+            /** Media Url */
+            media_url?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** StudentProfileData */
         StudentProfileData: {
@@ -206,6 +680,29 @@ export interface components {
              * @default 待采集
              */
             short_term_goal: string;
+        };
+        /** TaskAcceptedData */
+        TaskAcceptedData: {
+            /** Task Id */
+            task_id: string;
+            /**
+             * Status
+             * @default queued
+             */
+            status: string;
+            /**
+             * Deduplicated
+             * @default false
+             */
+            deduplicated: boolean;
+            /** Retry Of Task Id */
+            retry_of_task_id?: string | null;
+        };
+        /** TaskAcceptedResponse */
+        TaskAcceptedResponse: {
+            data: components["schemas"]["TaskAcceptedData"];
+            /** Trace Id */
+            trace_id: string;
         };
         /** UserInfoData */
         UserInfoData: {
@@ -240,6 +737,36 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** VideoPayload */
+        VideoPayload: {
+            /** Summary */
+            summary: string;
+            /** Poster Url */
+            poster_url: string;
+            /** Duration Seconds */
+            duration_seconds: number;
+        };
+        /** VideoResourceDetail */
+        VideoResourceDetail: {
+            /** Id */
+            id: string;
+            /** Task Id */
+            task_id?: string | null;
+            /** Course Name */
+            course_name?: string | null;
+            /** Title */
+            title: string;
+            /** Media Url */
+            media_url?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            resource_type: "video";
+            payload: components["schemas"]["VideoPayload"];
         };
     };
     responses: never;
@@ -286,6 +813,232 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_courses_api_course_list_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseListResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    submit_quiz_api_quiz_submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuizSubmitRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizSubmitResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    record_learning_events_api_learning_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningEventBatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningEventBatchResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_learning_path_api_path_get_get: {
+        parameters: {
+            query: {
+                user_id: string;
+                course_name: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningPathResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
             /** @description 统一错误响应 */
@@ -478,6 +1231,247 @@ export interface operations {
             };
         };
     };
+    generate_resources_api_resource_generate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceGenerateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskAcceptedResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_resources_api_resource_list_get: {
+        parameters: {
+            query: {
+                user_id: string;
+                course_name: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceListResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    resource_detail_api_resource_detail__resource_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resource_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceDetailResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    resource_progress_api_resource_progress__task_id__get: {
+        parameters: {
+            query?: {
+                after_seq?: number;
+            };
+            header?: {
+                "Last-Event-ID"?: string | null;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     get_task_api_task__task_id__get: {
         parameters: {
             query?: never;
@@ -498,6 +1492,64 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    retry_task_api_task__task_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskAcceptedResponse"];
                 };
             };
             /** @description 统一错误响应 */

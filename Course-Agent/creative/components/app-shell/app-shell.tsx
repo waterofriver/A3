@@ -25,10 +25,16 @@ const navigation = [
   { href: "/knowledge", label: "课程知识库", icon: LibraryBig },
 ]
 
+const isNavigationActive = (pathname: string, href: string) =>
+  pathname.startsWith(href) ||
+  (href === "/workspace" && pathname.startsWith("/resources/"))
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const current = navigation.find((item) => pathname.startsWith(item.href))
+  const current = navigation.find((item) =>
+    isNavigationActive(pathname, item.href),
+  )
   const userId = getUserId() ?? "未登录"
 
   const handleLogout = () => {
@@ -52,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav aria-label="主导航" className="flex-1 space-y-1 px-3 py-5">
           {navigation.map((item) => {
             const Icon = item.icon
-            const isActive = pathname.startsWith(item.href)
+            const isActive = isNavigationActive(pathname, item.href)
             return (
               <Link
                 aria-current={isActive ? "page" : undefined}
