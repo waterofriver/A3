@@ -391,7 +391,8 @@ backend/
   "finish_flag": false,
   "resource_ids": [],
   "profile_patch": null,
-  "error": null
+  "error": null,
+  "demo_mode": false
 }
 ```
 
@@ -412,6 +413,7 @@ POST 流在响应头返回 `X-Task-ID`，首个事件也必须包含 `task_id`�
 - 后端从 `task_events` 重放缺失事件。
 - 若无法继续流式重放，前端调用 `GET /api/task/{task_id}` 获取累计快照。
 - 只有 `task.failed.error.retryable=true` 才显示任务重试按钮。
+- `demo_mode=true` 时前端必须持续标注“演示模式”，不得与真实 Agent 结果混淆。
 
 ## 13. 非流式响应与错误模型
 
