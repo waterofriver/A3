@@ -4,6 +4,7 @@ from collections.abc import AsyncIterator
 from pydantic import BaseModel, Field
 
 from app.schemas.profile import StudentProfileData
+from app.schemas.qa import AnswerMode
 from app.schemas.learning import LearningPathDraft
 from app.schemas.resource import ResourceSummary, ResourceType
 from app.schemas.task import GatewayEvent
@@ -60,4 +61,17 @@ class AgentProvider(ABC):
         profile: StudentProfileData,
         resources: list[ResourceSummary],
     ) -> LearningPathDraft:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def stream_qa(
+        self,
+        *,
+        task_id: str,
+        trace_id: str,
+        user_id: str,
+        question: str,
+        answer_mode: AnswerMode,
+        profile: StudentProfileData,
+    ) -> AsyncIterator[GatewayEvent]:
         raise NotImplementedError

@@ -5,6 +5,7 @@ from app.agents.base import AgentProvider, ResourceAgentEvent, ResourceDraft
 from app.core.config import Settings
 from app.schemas.learning import LearningPathDraft, LearningPathNodeDraft
 from app.schemas.profile import StudentProfileData
+from app.schemas.qa import AnswerMode
 from app.schemas.resource import ResourceSummary, ResourceType
 from app.schemas.task import GatewayEvent
 
@@ -272,3 +273,81 @@ class MockAgentProvider(AgentProvider):
                 ),
             ]
         )
+
+    async def stream_qa(
+        self,
+        *,
+        task_id: str,
+        trace_id: str,
+        user_id: str,
+        question: str,
+        answer_mode: AnswerMode,
+        profile: StudentProfileData,
+    ) -> AsyncIterator[GatewayEvent]:
+        events = [
+            GatewayEvent(
+                event="agent.started",
+                task_id=task_id,
+                trace_id=trace_id,
+                current_agent="智能答疑Agent",
+                progress=10,
+                demo_mode=True,
+            ),
+            GatewayEvent(
+                event="content.delta",
+                task_id=task_id,
+                trace_id=trace_id,
+                current_agent="智能答疑Agent",
+                progress=30,
+                content=f"我会按你的{profile.cognitive_style}偏好来解释。\n\n",
+                demo_mode=True,
+            ),
+            GatewayEvent(
+                event="content.delta",
+                task_id=task_id,
+                trace_id=trace_id,
+                current_agent="智能答疑Agent",
+                progress=55,
+                content="发布者负责发送消息，订阅者监听主题并接收消息。\n\n",
+                demo_mode=True,
+            ),
+            GatewayEvent(
+                event="content.delta",
+                task_id=task_id,
+                trace_id=trace_id,
+                current_agent="智能答疑Agent",
+                progress=75,
+                content="两者通过主题解耦，因此不需要直接知道彼此的位置。",
+                demo_mode=True,
+            ),
+        ]
+        if answer_mode in {"image", "video"}:
+            events.append(
+                GatewayEvent(
+                    event="media.ready",
+                    task_id=task_id,
+                    trace_id=trace_id,
+                    current_agent="智能答疑Agent",
+                    progress=88,
+                    resource_type="video" if answer_mode == "video" else None,
+                    media_url=None,
+                    content="等待真实多模态 Agent 返回素材链接。",
+                    demo_mode=True,
+                )
+            )
+        events.append(
+            GatewayEvent(
+                event="task.completed",
+                task_id=task_id,
+                trace_id=trace_id,
+                current_agent="智能答疑Agent",
+                progress=100,
+                finish_flag=True,
+                demo_mode=True,
+            )
+        )
+
+        for index, event in enumerate(events):
+            yield event
+            if self.settings.mock_event_delay_ms and index < len(events) - 1:
+                await asyncio.sleep(self.settings.mock_event_delay_ms / 1000)
