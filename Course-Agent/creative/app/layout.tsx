@@ -1,46 +1,23 @@
-import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import './globals.css'
-import { CozeChat } from '@/components/coze-chat'
+import type { Metadata } from "next"
+import { ReactNode } from "react"
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+import { Providers } from "@/app/providers"
+
+import "./globals.css"
 
 export const metadata: Metadata = {
-  title: '创意教学平台',
-  description: '面向中国用户的创意学习与项目工作台',
-  generator: 'v0.app',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+  title: {
+    default: "智学引擎",
+    template: "%s | 智学引擎",
   },
+  description: "多智能体个性化学习系统",
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body suppressHydrationWarning className={`font-sans antialiased`}>
-        {children}
-        <Analytics />
-        <CozeChat />
+    <html lang="zh-CN">
+      <body>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

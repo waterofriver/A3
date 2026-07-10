@@ -540,6 +540,8 @@ Course-Agent/creative/playwright-report/
 Course-Agent/creative/test-results/
 !Course-Agent/creative/lib/
 !Course-Agent/creative/lib/**
+!Course-Agent/creative/tests/lib/
+!Course-Agent/creative/tests/lib/**
 mywebsite/upload/
 mywebsite/**/*.db
 !.env.example
