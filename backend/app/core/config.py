@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     remote_agent_timeout_seconds: int = 120
     allow_mock_fallback: bool = False
     web_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    sse_poll_interval_ms: int = 250
+    sse_heartbeat_seconds: int = 15
 
     @property
     def allowed_web_origins(self) -> list[str]:

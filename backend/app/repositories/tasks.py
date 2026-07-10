@@ -34,6 +34,62 @@ class TaskRepository:
             raise LookupError(task_id)
         return task
 
+    def find_idempotent(self, user_id: str, idempotency_key: str) -> Task | None:
+        return self.session.scalar(
+            select(Task).where(
+                Task.user_id == user_id,
+                Task.idempotency_key == idempotency_key,
+            )
+        )
+
+    def get_request_snapshot(self, task_id: str) -> dict:
+        return dict(self.get(task_id).request_snapshot)
+
+    def list_events(self, task_id: str, after_seq: int = 0) -> list[TaskEvent]:
+        statement = (
+            select(TaskEvent)
+            .where(TaskEvent.task_id == task_id, TaskEvent.seq > after_seq)
+            .order_by(TaskEvent.seq)
+        )
+        return list(self.session.scalars(statement))
+
+    def mark_interrupted_running_tasks(self) -> int:
+        tasks = list(
+            self.session.scalars(
+                select(Task).where(Task.status.in_(["queued", "running"]))
+            )
+        )
+        for task in tasks:
+            task.status = "failed"
+            task.error = {
+                "code": "TASK_INTERRUPTED",
+                "message": "服务重启中断了任务，请重新提交。",
+                "retryable": True,
+            }
+            stored = self.append_event(
+                task.id,
+                "task.failed",
+                {
+                    "event": "task.failed",
+                    "task_id": task.id,
+                    "seq": 0,
+                    "trace_id": "startup-recovery",
+                    "current_agent": task.current_agent,
+                    "progress": task.progress,
+                    "resource_type": None,
+                    "content": "",
+                    "media_url": None,
+                    "finish_flag": True,
+                    "resource_ids": [],
+                    "profile_patch": None,
+                    "error": task.error,
+                    "demo_mode": False,
+                },
+            )
+            stored.payload["seq"] = stored.seq
+        self.session.flush()
+        return len(tasks)
+
     def append_event(self, task_id: str, event_type: str, payload: dict) -> TaskEvent:
         next_seq = self.session.scalar(
             select(func.coalesce(func.max(TaskEvent.seq), 0) + 1).where(

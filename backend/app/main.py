@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.agents.mock import MockAgentProvider
 from app.api.routes.health import router as health_router
 from app.api.routes.profile import router as profile_router
+from app.api.routes.resources import router as resources_router
 from app.api.routes.tasks import router as tasks_router
 from app.api.routes.users import router as users_router
 from app.core.config import Settings
@@ -14,17 +15,25 @@ from app.core.errors import register_error_handlers
 from app.core.logging import TraceIdMiddleware
 from app.db.database import Database
 from app.schemas.common import ErrorResponse
+from app.repositories.tasks import TaskRepository
+from app.tasks.manager import TaskManager
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     resolved = settings or Settings()
     db = Database(resolved.database_url)
+    task_manager = TaskManager()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         db.create_schema()
-        yield
-        db.dispose()
+        with db.session() as session:
+            TaskRepository(session).mark_interrupted_running_tasks()
+        try:
+            yield
+        finally:
+            await task_manager.shutdown()
+            db.dispose()
 
     error_response = {"model": ErrorResponse, "description": "统一错误响应"}
     app = FastAPI(
@@ -39,6 +48,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = resolved
     app.state.db = db
+    app.state.task_manager = task_manager
     app.state.agent_provider = (
         MockAgentProvider(resolved) if resolved.agent_mode == "mock" else None
     )
@@ -55,6 +65,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router)
     app.include_router(users_router)
     app.include_router(profile_router)
+    app.include_router(resources_router)
     app.include_router(tasks_router)
     return app
 
