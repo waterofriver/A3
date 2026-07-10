@@ -4,7 +4,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.routes.health import router as health_router
+from app.api.routes.tasks import router as tasks_router
 from app.core.config import Settings
+from app.core.errors import register_error_handlers
+from app.core.logging import TraceIdMiddleware
 from app.db.database import Database
 
 
@@ -21,7 +24,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="Zhixue Engine Gateway", version="0.1.0", lifespan=lifespan)
     app.state.settings = resolved
     app.state.db = db
+    app.add_middleware(TraceIdMiddleware)
+    register_error_handlers(app)
     app.include_router(health_router)
+    app.include_router(tasks_router)
     return app
 
 
