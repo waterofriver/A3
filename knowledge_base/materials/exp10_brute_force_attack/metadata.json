@@ -1,0 +1,40 @@
+{
+  "id": "exp10_brute_force_attack",
+  "name": "实验十：暴力破解攻击",
+  "description": "理解弱口令、穷举与认证失效带来的安全风险，并掌握实验验证方式。",
+  "category": "网络攻防",
+  "keywords": [
+    "暴力破解",
+    "认证安全",
+    "攻击验证"
+  ],
+  "files": [
+    {
+      "name": "101_实验十 暴力破解攻击.pptx",
+      "path": "101_实验十 暴力破解攻击.pptx",
+      "file_type": "pptx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 511106
+    },
+    {
+      "name": "metadata.json",
+      "path": "metadata.json",
+      "file_type": "json",
+      "resource_type": "supplementary",
+      "previewable": false,
+      "retrievable": true,
+      "size_bytes": 877
+    },
+    {
+      "name": "实验十 暴力破解攻击.docx",
+      "path": "实验十 暴力破解攻击.docx",
+      "file_type": "docx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 287256
+    }
+  ]
+}

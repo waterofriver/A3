@@ -1,0 +1,58 @@
+{
+  "id": "exp08_rsa_communication",
+  "name": "实验八：RSA 加密与通讯",
+  "description": "通过 RSA 和混合加密理解安全通信的基础机制与数据保护方式。",
+  "category": "密码与通信",
+  "keywords": [
+    "RSA",
+    "加密",
+    "安全通信"
+  ],
+  "files": [
+    {
+      "name": "80_实验八 RSA加密与通讯.docx",
+      "path": "80_实验八 RSA加密与通讯.docx",
+      "file_type": "docx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 388732
+    },
+    {
+      "name": "81_实验八 RSA加密与通讯.pdf",
+      "path": "81_实验八 RSA加密与通讯.pdf",
+      "file_type": "pdf",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 574916
+    },
+    {
+      "name": "81_实验八 RSA加密与通讯.pptx",
+      "path": "81_实验八 RSA加密与通讯.pptx",
+      "file_type": "pptx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 316349
+    },
+    {
+      "name": "82_实验八拓展 RSA-AES加密.docx",
+      "path": "82_实验八拓展 RSA-AES加密.docx",
+      "file_type": "docx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 385208
+    },
+    {
+      "name": "metadata.json",
+      "path": "metadata.json",
+      "file_type": "json",
+      "resource_type": "supplementary",
+      "previewable": false,
+      "retrievable": true,
+      "size_bytes": 1402
+    }
+  ]
+}

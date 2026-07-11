@@ -1,0 +1,157 @@
+{
+  "course_name": "机器人与安全",
+  "course_slug": "robot-safety",
+  "course_description": "本课程面向机器人系统与网络安全的实验型教学场景，覆盖环境搭建、ROS 入门、机器人控制、攻击验证与综合拓展资源。",
+  "knowledge_points": [
+    {
+      "id": "course_orientation",
+      "name": "课程导论与实验总览",
+      "description": "介绍课程目标、实验安排、资源结构和学习路径，为后续实验提供整体认知。",
+      "category": "基础准备",
+      "prerequisites": [],
+      "difficulty": 1,
+      "estimated_minutes": 30,
+      "tags": ["课程导论", "实验总览", "学习路径"]
+    },
+    {
+      "id": "vm_environment_setup",
+      "name": "虚拟机与实验环境配置",
+      "description": "完成虚拟机安装、解压、启动和基础运行检查，确保后续实验环境可用。",
+      "category": "基础准备",
+      "prerequisites": ["course_orientation"],
+      "difficulty": 1,
+      "estimated_minutes": 45,
+      "tags": ["虚拟机", "环境配置", "实验准备"]
+    },
+    {
+      "id": "network_environment_setup",
+      "name": "网络环境与基础连通性",
+      "description": "配置实验所需网络条件，理解基础连通性和实验拓扑，为攻防实验打底。",
+      "category": "基础准备",
+      "prerequisites": ["vm_environment_setup"],
+      "difficulty": 2,
+      "estimated_minutes": 40,
+      "tags": ["网络环境", "连通性", "拓扑"]
+    },
+    {
+      "id": "exp01_ros_turtlesim",
+      "name": "实验一：ROS 进阶与小乌龟",
+      "description": "通过 turtlesim 认识 ROS 的基本通信和控制方式，建立机器人实验的最小实践闭环。",
+      "category": "ROS 基础",
+      "prerequisites": ["network_environment_setup"],
+      "difficulty": 2,
+      "estimated_minutes": 60,
+      "tags": ["ROS", "turtlesim", "入门实验"]
+    },
+    {
+      "id": "exp02_robot_remote_control",
+      "name": "实验二：机器人连接与远程控制",
+      "description": "学习机器人远程连接和控制流程，理解指令下发、设备联通与基础调试。",
+      "category": "ROS 基础",
+      "prerequisites": ["exp01_ros_turtlesim"],
+      "difficulty": 2,
+      "estimated_minutes": 60,
+      "tags": ["远程控制", "机器人连接", "调试"]
+    },
+    {
+      "id": "exp03_slam_mapping_navigation",
+      "name": "实验三：SLAM 地图构建与导航",
+      "description": "通过地图构建与导航流程理解机器人定位、建图和路径规划的核心机制。",
+      "category": "移动与导航",
+      "prerequisites": ["exp02_robot_remote_control"],
+      "difficulty": 3,
+      "estimated_minutes": 90,
+      "tags": ["SLAM", "导航", "路径规划"]
+    },
+    {
+      "id": "exp04_line_following",
+      "name": "实验四：机器人循线跟踪",
+      "description": "结合传感器和控制策略完成循线跟踪实验，训练机器人行为控制和反馈调节能力。",
+      "category": "移动与导航",
+      "prerequisites": ["exp03_slam_mapping_navigation"],
+      "difficulty": 3,
+      "estimated_minutes": 75,
+      "tags": ["循线", "控制", "传感器"]
+    },
+    {
+      "id": "exp05_arp_poisoning",
+      "name": "实验五：ARP 中毒攻击",
+      "description": "认识链路层欺骗和中间人攻击的基础手法，理解攻击面与实验环境中的风险点。",
+      "category": "网络攻防",
+      "prerequisites": ["network_environment_setup"],
+      "difficulty": 3,
+      "estimated_minutes": 60,
+      "tags": ["ARP", "中间人", "网络攻击"]
+    },
+    {
+      "id": "exp06_mitm_attack",
+      "name": "实验六：中间人攻击",
+      "description": "通过中间人攻击实验理解流量劫持、数据篡改和攻击链路分析。",
+      "category": "网络攻防",
+      "prerequisites": ["exp05_arp_poisoning"],
+      "difficulty": 3,
+      "estimated_minutes": 75,
+      "tags": ["MITM", "流量劫持", "安全分析"]
+    },
+    {
+      "id": "exp07_dos_attack",
+      "name": "实验七：DOS 攻击",
+      "description": "理解拒绝服务攻击的基本原理、表现形态和防护思路。",
+      "category": "网络攻防",
+      "prerequisites": ["exp06_mitm_attack"],
+      "difficulty": 3,
+      "estimated_minutes": 60,
+      "tags": ["DOS", "拒绝服务", "安全防护"]
+    },
+    {
+      "id": "exp08_rsa_communication",
+      "name": "实验八：RSA 加密与通讯",
+      "description": "通过 RSA 和混合加密理解安全通信的基础机制与数据保护方式。",
+      "category": "密码与通信",
+      "prerequisites": ["exp07_dos_attack"],
+      "difficulty": 3,
+      "estimated_minutes": 80,
+      "tags": ["RSA", "加密", "安全通信"]
+    },
+    {
+      "id": "exp09_stereo_vision_attack",
+      "name": "实验九：双目视觉摄像头识别攻击",
+      "description": "结合视觉感知理解摄像头识别相关风险，学习攻击验证与安全边界。",
+      "category": "视觉与安全",
+      "prerequisites": ["exp08_rsa_communication"],
+      "difficulty": 4,
+      "estimated_minutes": 80,
+      "tags": ["双目视觉", "摄像头", "识别攻击"]
+    },
+    {
+      "id": "exp10_brute_force_attack",
+      "name": "实验十：暴力破解攻击",
+      "description": "理解弱口令、穷举与认证失效带来的安全风险，并掌握实验验证方式。",
+      "category": "网络攻防",
+      "prerequisites": ["exp09_stereo_vision_attack"],
+      "difficulty": 3,
+      "estimated_minutes": 60,
+      "tags": ["暴力破解", "认证安全", "攻击验证"]
+    },
+    {
+      "id": "exp11_multi_robot_formation",
+      "name": "实验十一：多机编队实验",
+      "description": "在前序机器人控制基础上完成多机编队与协同控制，体现综合实验能力。",
+      "category": "综合实验",
+      "prerequisites": ["exp04_line_following", "exp10_brute_force_attack"],
+      "difficulty": 4,
+      "estimated_minutes": 90,
+      "tags": ["多机编队", "协同控制", "综合实验"]
+    },
+    {
+      "id": "shared_references",
+      "name": "课程拓展阅读与参考资料",
+      "description": "整理课程外的书籍、手册和补充资料，为查漏补缺和拓展学习提供入口。",
+      "category": "拓展资源",
+      "prerequisites": [],
+      "difficulty": 1,
+      "estimated_minutes": 30,
+      "tags": ["参考书", "手册", "拓展阅读"]
+    }
+  ]
+}
