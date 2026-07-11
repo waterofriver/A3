@@ -2,6 +2,7 @@
   "_comment": "=== 知识点 DAG 模板 === 请将 knowledge_points 数组填写完整后，把本文件重命名为 knowledge_dag.json。每个字段的含义请参阅 README.md。",
 
   "course_name": "请替换为你的课程全称",
+  "course_slug": "robot-safety",
   "course_description": "请用 1-2 句话概述这门课程的范围与目标",
 
   "knowledge_points": [
