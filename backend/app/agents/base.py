@@ -25,6 +25,7 @@ class ResourceAgentEvent(BaseModel):
     resource_type: ResourceType
     content: str = ""
     resource: ResourceDraft | None = None
+    demo_mode: bool = False
 
 
 class AgentProvider(ABC):

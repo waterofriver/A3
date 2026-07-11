@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.agents.mock import MockAgentProvider
 from app.api.routes.health import router as health_router
 from app.api.routes.evaluation import router as evaluation_router
 from app.api.routes.courses import media_router as course_media_router
@@ -39,6 +38,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             yield
         finally:
+            provider = app.state.agent_provider
+            if provider is not None and hasattr(provider, "aclose"):
+                await provider.aclose()
             await task_manager.shutdown()
             db.dispose()
 
@@ -56,9 +58,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = resolved
     app.state.db = db
     app.state.task_manager = task_manager
-    app.state.agent_provider = (
-        MockAgentProvider(resolved) if resolved.agent_mode == "mock" else None
-    )
+    app.state.agent_provider = None
     app.add_middleware(
         CORSMiddleware,
         allow_origins=resolved.allowed_web_origins,

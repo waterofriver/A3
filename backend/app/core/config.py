@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     remote_agent_api_key: str = ""
     remote_agent_timeout_seconds: int = 120
     allow_mock_fallback: bool = False
+    remote_profile_path: str = "/profile/stream"
+    remote_resources_path: str = "/resources/stream"
+    remote_qa_path: str = "/qa/stream"
+    remote_path_path: str = "/path"
+    remote_evaluation_path: str = "/evaluation"
     web_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     sse_poll_interval_ms: int = 250
     sse_heartbeat_seconds: int = 15

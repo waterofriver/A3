@@ -156,6 +156,7 @@ class ResourceService:
     ) -> None:
         resource_ids: list[str] = []
         current_agent = "主管Agent"
+        demo_mode = self.demo_mode
         try:
             self._persist_event(
                 GatewayEvent(
@@ -176,6 +177,7 @@ class ResourceService:
                 resource_types=payload.resource_type_list,
             ):
                 current_agent = internal.current_agent
+                demo_mode = demo_mode or internal.demo_mode
                 resource_id = None
                 draft = internal.resource
                 if internal.event == "resource.ready":
@@ -203,7 +205,7 @@ class ResourceService:
                     content=internal.content,
                     media_url=draft.media_url if draft else None,
                     resource_ids=[resource_id] if resource_id else [],
-                    demo_mode=self.demo_mode,
+                    demo_mode=demo_mode,
                 )
                 self._persist_event(
                     gateway,
@@ -221,7 +223,7 @@ class ResourceService:
                     progress=100,
                     finish_flag=True,
                     resource_ids=resource_ids,
-                    demo_mode=self.demo_mode,
+                    demo_mode=demo_mode,
                 ),
                 status="succeeded",
                 result_snapshot={
@@ -245,7 +247,7 @@ class ResourceService:
                     finish_flag=True,
                     resource_ids=resource_ids,
                     error=gateway_error,
-                    demo_mode=self.demo_mode,
+                    demo_mode=demo_mode,
                 ),
                 status="failed",
                 result_snapshot={"resource_ids": resource_ids},
