@@ -1,10 +1,19 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { ApiError, apiFetch } from "@/lib/api/client"
+import { ApiError, apiFetch, resolveApiUrl } from "@/lib/api/client"
 
 afterEach(() => vi.unstubAllGlobals())
 
 describe("apiFetch", () => {
+  it("resolves relative media URLs against the configured API origin", () => {
+    expect(resolveApiUrl("/media/courses/ros2/intro.pdf")).toBe(
+      "http://localhost:8000/media/courses/ros2/intro.pdf",
+    )
+    expect(resolveApiUrl("https://agent.example/media.png")).toBe(
+      "https://agent.example/media.png",
+    )
+  })
+
   it("returns data from a successful envelope", async () => {
     vi.stubGlobal(
       "fetch",

@@ -53,4 +53,10 @@ export async function apiFetch<T>(
   return (body as DataEnvelope<T>).data
 }
 
+export function resolveApiUrl(url: string): string {
+  if (/^(?:https?:|data:|blob:)/i.test(url)) return url
+  const path = url.startsWith("/") ? url : `/${url}`
+  return `${API_BASE_URL}${path}`
+}
+
 export { API_BASE_URL }

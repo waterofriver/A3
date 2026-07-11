@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/course/base": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Course Base */
+        get: operations["get_course_base_api_course_base_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/quiz/submit": {
         parameters: {
             query?: never;
@@ -326,6 +343,53 @@ export interface components {
              */
             resource_type: "code";
             payload: components["schemas"]["CodePayload"];
+        };
+        /** CourseBaseData */
+        CourseBaseData: {
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Content Ready */
+            content_ready: boolean;
+            /** Is Demo */
+            is_demo: boolean;
+            /** Chapters */
+            chapters: components["schemas"]["CourseChapterData"][];
+        };
+        /** CourseBaseResponse */
+        CourseBaseResponse: {
+            data: components["schemas"]["CourseBaseData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** CourseChapterData */
+        CourseChapterData: {
+            /** Path */
+            path: string;
+            /** Name */
+            name: string;
+            /** Documents */
+            documents: components["schemas"]["CourseDocumentData"][];
+        };
+        /** CourseDocumentData */
+        CourseDocumentData: {
+            /** Id */
+            id: string;
+            /** Chapter Path */
+            chapter_path: string;
+            /** Filename */
+            filename: string;
+            /** File Type */
+            file_type: string;
+            /** Sha256 */
+            sha256: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Preview Text */
+            preview_text?: string | null;
+            /** Media Url */
+            media_url?: string | null;
         };
         /** CourseListResponse */
         CourseListResponse: {
@@ -1104,6 +1168,64 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_course_base_api_course_base_get: {
+        parameters: {
+            query: {
+                course_name: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseBaseResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
             /** @description 统一错误响应 */
