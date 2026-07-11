@@ -1,6 +1,7 @@
-import { Braces, FileText, ListChecks, Network, Video } from "lucide-react"
+import { Braces, FileText, FolderOpen, ListChecks, Network, Video } from "lucide-react"
 import Link from "next/link"
 
+import { EmptyState } from "@/components/shared/empty-state"
 import type { ResourceSummary, ResourceType } from "@/lib/api/resource-types"
 
 const resourceMeta: Record<
@@ -68,12 +69,12 @@ export function ResourceGrid({
           })}
         </div>
       ) : (
-        <div className="mt-4 grid min-h-[420px] place-items-center border border-dashed border-[#cbd5e3] bg-white px-8 text-center">
-          <div>
-            <p className="text-sm font-semibold text-[#344158]">当前课程暂无资源</p>
-            <p className="mt-2 text-xs leading-5 text-[#7a8799]">选择需要的资源类型并启动多 Agent 任务。</p>
-          </div>
-        </div>
+        <EmptyState
+          className="mt-4 min-h-[420px] border border-dashed border-[#cbd5e3] bg-white px-8"
+          description="选择资源类型并启动生成任务。"
+          icon={FolderOpen}
+          title="当前课程暂无资源"
+        />
       )}
     </section>
   )

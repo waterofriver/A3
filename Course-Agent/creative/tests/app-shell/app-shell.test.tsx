@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { AppShell } from "@/components/app-shell/app-shell"
 import { SessionGuard } from "@/components/app-shell/session-guard"
+import { announceDemoMode } from "@/lib/runtime/demo-mode"
 
 const replace = vi.fn()
 
@@ -60,5 +61,18 @@ describe("AppShell", () => {
     )
 
     expect(await screen.findByText("private content")).toBeInTheDocument()
+  })
+
+  it("shows demo mode in remote mode only after a fallback event", async () => {
+    render(
+      <AppShell initialDemoMode={false}>
+        <div>remote content</div>
+      </AppShell>,
+    )
+    expect(screen.queryByText("演示模式")).not.toBeInTheDocument()
+
+    announceDemoMode()
+
+    expect(await screen.findByText("演示模式")).toBeInTheDocument()
   })
 })

@@ -1,4 +1,9 @@
+"use client"
+
 import { Activity, CheckCircle2, LoaderCircle, TriangleAlert } from "lucide-react"
+import { useEffect } from "react"
+
+import { announceDemoMode } from "@/lib/runtime/demo-mode"
 
 type AgentProgressProps = {
   progress: number
@@ -20,6 +25,10 @@ export function AgentProgress({
   status,
   demoMode,
 }: AgentProgressProps) {
+  useEffect(() => {
+    if (demoMode) announceDemoMode()
+  }, [demoMode])
+
   const normalizedProgress = Math.max(0, Math.min(100, progress))
   const StatusIcon =
     status === "succeeded"

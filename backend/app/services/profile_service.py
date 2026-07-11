@@ -8,6 +8,7 @@ from app.repositories.tasks import TaskRepository
 from app.repositories.users import UserRepository
 from app.schemas.profile import StudentProfileData
 from app.schemas.task import GatewayEvent
+from app.services.agent_errors import gateway_error_from_exception
 
 
 def encode_sse(event: GatewayEvent) -> str:
@@ -61,68 +62,109 @@ class ProfileService:
 
         latest_profile = current_profile
         assistant_parts: list[str] = []
+        current_agent = "画像抽取Agent"
 
-        async for event in self.provider.stream_profile(
-            task_id=task_id,
-            trace_id=trace_id,
-            user_id=user_id,
-            chat_text=chat_text,
-            current_profile=current_profile,
-        ):
-            if event.event == "content.delta":
-                assistant_parts.append(event.content)
-
-            with self.db.session() as session:
-                task_repository = TaskRepository(session)
-                stored_event = task_repository.append_event(
-                    task_id, event.event, event.model_dump(mode="json")
+        try:
+            async for event in self.provider.stream_profile(
+                task_id=task_id,
+                trace_id=trace_id,
+                user_id=user_id,
+                chat_text=chat_text,
+                current_profile=current_profile,
+            ):
+                current_agent = event.current_agent or current_agent
+                if event.event == "content.delta":
+                    assistant_parts.append(event.content)
+                latest_profile, current_revision = self._persist_event(
+                    event=event,
+                    user_id=user_id,
+                    latest_profile=latest_profile,
+                    current_revision=current_revision,
+                    assistant_parts=assistant_parts,
                 )
-                event.seq = stored_event.seq
+                yield encode_sse(event)
+        except Exception as error:
+            failed = GatewayEvent(
+                event="task.failed",
+                task_id=task_id,
+                trace_id=trace_id,
+                current_agent=current_agent,
+                progress=0,
+                finish_flag=True,
+                error=gateway_error_from_exception(
+                    error,
+                    default_code="PROFILE_GENERATION_FAILED",
+                    default_prefix="画像生成失败",
+                ),
+            )
+            self._persist_event(
+                event=failed,
+                user_id=user_id,
+                latest_profile=latest_profile,
+                current_revision=current_revision,
+                assistant_parts=assistant_parts,
+            )
+            yield encode_sse(failed)
 
-                if event.event == "profile.patch" and event.profile_patch:
-                    merged = {
-                        **(latest_profile.model_dump() if latest_profile else {}),
-                        **event.profile_patch,
-                    }
-                    latest_profile = StudentProfileData.model_validate(merged)
-                    current_revision += 1
-                    ProfileRepository(session).upsert(
-                        user_id,
-                        latest_profile.model_dump(),
-                        revision=current_revision,
-                    )
+    def _persist_event(
+        self,
+        *,
+        event: GatewayEvent,
+        user_id: str,
+        latest_profile: StudentProfileData | None,
+        current_revision: int,
+        assistant_parts: list[str],
+    ) -> tuple[StudentProfileData | None, int]:
+        with self.db.session() as session:
+            task_repository = TaskRepository(session)
+            stored_event = task_repository.append_event(
+                event.task_id, event.event, event.model_dump(mode="json")
+            )
+            event.seq = stored_event.seq
 
-                status = "running"
-                result_snapshot = None
-                if event.event == "task.completed":
-                    status = "succeeded"
-                    result_snapshot = {
-                        "profile": latest_profile.model_dump()
-                        if latest_profile
-                        else None,
-                        "revision": current_revision,
-                    }
-                    if assistant_parts:
-                        session.add(
-                            ProfileMessage(
-                                user_id=user_id,
-                                task_id=task_id,
-                                role="assistant",
-                                content="".join(assistant_parts),
-                            )
+            if event.event == "profile.patch" and event.profile_patch:
+                merged = {
+                    **(latest_profile.model_dump() if latest_profile else {}),
+                    **event.profile_patch,
+                }
+                latest_profile = StudentProfileData.model_validate(merged)
+                current_revision += 1
+                ProfileRepository(session).upsert(
+                    user_id,
+                    latest_profile.model_dump(),
+                    revision=current_revision,
+                )
+
+            status = "running"
+            result_snapshot = None
+            if event.event == "task.completed":
+                status = "succeeded"
+                result_snapshot = {
+                    "profile": latest_profile.model_dump()
+                    if latest_profile
+                    else None,
+                    "revision": current_revision,
+                }
+                if assistant_parts:
+                    session.add(
+                        ProfileMessage(
+                            user_id=user_id,
+                            task_id=event.task_id,
+                            role="assistant",
+                            content="".join(assistant_parts),
                         )
-                elif event.event == "task.failed":
-                    status = "failed"
+                    )
+            elif event.event == "task.failed":
+                status = "failed"
 
-                task_repository.update_state(
-                    task_id,
-                    status=status,
-                    progress=event.progress,
-                    current_agent=event.current_agent,
-                    result_snapshot=result_snapshot,
-                    error=event.error.model_dump() if event.error else None,
-                )
-                stored_event.payload = event.model_dump(mode="json")
-                session.flush()
-
-            yield encode_sse(event)
+            task_repository.update_state(
+                event.task_id,
+                status=status,
+                progress=event.progress,
+                current_agent=event.current_agent,
+                result_snapshot=result_snapshot,
+                error=event.error.model_dump() if event.error else None,
+            )
+            stored_event.payload = event.model_dump(mode="json")
+            session.flush()
+        return latest_profile, current_revision

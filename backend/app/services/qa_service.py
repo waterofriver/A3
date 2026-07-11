@@ -9,8 +9,9 @@ from app.repositories.tasks import TaskRepository
 from app.repositories.users import UserRepository
 from app.schemas.profile import StudentProfileData
 from app.schemas.qa import QaRequest
-from app.schemas.task import GatewayError, GatewayEvent
+from app.schemas.task import GatewayEvent
 from app.services.profile_service import encode_sse
+from app.services.agent_errors import gateway_error_from_exception
 
 
 class QaService:
@@ -75,10 +76,10 @@ class QaService:
                 current_agent="智能答疑Agent",
                 progress=0,
                 finish_flag=True,
-                error=GatewayError(
-                    code="QA_GENERATION_FAILED",
-                    message=f"答疑生成失败：{error}",
-                    retryable=True,
+                error=gateway_error_from_exception(
+                    error,
+                    default_code="QA_GENERATION_FAILED",
+                    default_prefix="答疑生成失败",
                 ),
             )
             self._persist(failed)

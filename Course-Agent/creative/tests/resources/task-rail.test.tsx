@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { TaskRail } from "@/components/resources/task-rail"
 import { createResourceTaskState } from "@/lib/query/resource-cache"
@@ -20,6 +20,7 @@ describe("TaskRail", () => {
     render(
       <TaskRail
         connectionState="open"
+        onRetry={vi.fn()}
         selectedTypes={["handout", "quiz"]}
         task={task}
       />,
@@ -29,6 +30,8 @@ describe("TaskRail", () => {
     expect(screen.getByText("习题题库")).toBeInTheDocument()
     expect(screen.getByText("已完成")).toBeInTheDocument()
     expect(screen.getByText("生成失败")).toBeInTheDocument()
+    expect(screen.getByText("题库生成超时")).toBeInTheDocument()
+    expect(screen.getByText("可重试")).toBeInTheDocument()
     expect(screen.getByText("题库Agent")).toBeInTheDocument()
   })
 })

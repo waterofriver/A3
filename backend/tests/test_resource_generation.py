@@ -1,5 +1,8 @@
 import time
 
+from app.agents.base import ResourceAgentEvent
+from app.agents.mock import MockAgentProvider
+from app.core.errors import AppError
 from app.repositories.tasks import TaskRepository
 from app.repositories.users import UserRepository
 
@@ -105,3 +108,59 @@ def test_retry_creates_a_new_task_with_source_snapshot(client):
     with db.session() as session:
         snapshot = TaskRepository(session).get_request_snapshot(retried_id)
     assert snapshot["retry_of_task_id"] == failed.id
+
+
+def test_partial_success_keeps_completed_resources_and_retry_contract(
+    client, settings
+):
+    class PartialProvider(MockAgentProvider):
+        async def stream_resources(self, **kwargs):
+            yield ResourceAgentEvent(
+                event="resource.ready",
+                current_agent="讲义Agent",
+                progress=45,
+                resource_type="handout",
+                resource=self._resource_draft(
+                    resource_type="handout",
+                    course_name=kwargs["course_name"],
+                    weak_point=kwargs["weak_point"],
+                ),
+            )
+            yield ResourceAgentEvent(
+                event="agent.started",
+                current_agent="题库Agent",
+                progress=55,
+                resource_type="quiz",
+            )
+            raise AppError(
+                status_code=503,
+                code="UPSTREAM_TIMEOUT",
+                message="题库 Agent 响应超时。",
+                retryable=True,
+            )
+
+    client.app.state.agent_provider = PartialProvider(settings)
+    payload = {
+        **generation_payload("partial-student"),
+        "resource_type_list": ["handout", "quiz"],
+    }
+    accepted = client.post("/api/resource/generate", json=payload)
+    task_id = accepted.json()["data"]["task_id"]
+
+    task = wait_for_task(client, task_id)
+
+    assert task["status"] == "partial_success"
+    assert task["error"]["code"] == "UPSTREAM_TIMEOUT"
+    history = client.get(
+        "/api/resource/list",
+        params={"user_id": payload["user_id"], "course_name": payload["course_name"]},
+    ).json()["data"]["resources"]
+    assert [resource["resource_type"] for resource in history] == ["handout"]
+    with client.app.state.db.session() as session:
+        failed_event = TaskRepository(session).list_events(task_id)[-1]
+        assert failed_event.event_type == "task.failed"
+        assert failed_event.payload["resource_type"] == "quiz"
+        assert failed_event.payload["error"]["code"] == "UPSTREAM_TIMEOUT"
+
+    retry = client.post(f"/api/task/{task_id}/retry")
+    assert retry.status_code == 202

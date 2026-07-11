@@ -47,11 +47,11 @@ export function TaskRail({
 }: TaskRailProps) {
   const [pinned, setPinned] = useState(false)
   const [expanded, setExpanded] = useState(true)
-  const terminal = ["succeeded", "failed", "partial_success"].includes(task.status)
+  const autoCollapse = task.status === "succeeded"
 
   useEffect(() => {
-    if (terminal && !pinned) setExpanded(false)
-  }, [pinned, terminal])
+    if (autoCollapse && !pinned) setExpanded(false)
+  }, [autoCollapse, pinned])
 
   if (!expanded) {
     return (
@@ -138,6 +138,18 @@ export function TaskRail({
                     </span>
                   </div>
                   <Progress className="mt-2 h-1 rounded-none" value={item.progress} />
+                  {item.error ? (
+                    <div className="mt-2 flex items-start justify-between gap-2">
+                      <p className="min-w-0 text-[11px] leading-4 text-[#a2463e]">
+                        {item.error.message}
+                      </p>
+                      {item.error.retryable ? (
+                        <span className="shrink-0 rounded-sm bg-[#fff0ed] px-1.5 py-0.5 text-[10px] font-semibold text-[#a2463e]">
+                          可重试
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
               </li>
             )

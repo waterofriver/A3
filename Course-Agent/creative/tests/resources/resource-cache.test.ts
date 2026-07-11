@@ -56,6 +56,37 @@ describe("applyResourceEvent", () => {
     expect(duplicate.byType.code.content).toBe("first")
   })
 
+  it("keeps completed resources when a later resource type fails", () => {
+    const completed = applyResourceEvent(
+      createResourceTaskState("task-1"),
+      event({
+        event: "resource.ready",
+        resource_type: "handout",
+        resource_ids: ["handout-1"],
+        progress: 55,
+      }),
+    )
+    const partial = applyResourceEvent(
+      completed,
+      event({
+        event: "task.failed",
+        seq: 2,
+        resource_type: "quiz",
+        progress: 55,
+        error: {
+          code: "UPSTREAM_TIMEOUT",
+          message: "题库生成超时",
+          retryable: true,
+        },
+      }),
+    )
+
+    expect(partial.status).toBe("partial_success")
+    expect(partial.byType.handout.status).toBe("succeeded")
+    expect(partial.byType.handout.resourceIds).toEqual(["handout-1"])
+    expect(partial.byType.quiz.status).toBe("failed")
+  })
+
   it("stores only the active task pointer for refresh recovery", () => {
     localStorage.clear()
     rememberActiveResourceTask("student-1", "机器人操作系统", "task-9")

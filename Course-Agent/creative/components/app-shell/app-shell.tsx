@@ -12,11 +12,16 @@ import {
   UserRoundSearch,
 } from "lucide-react"
 import Link from "next/link"
-import { ReactNode, useState } from "react"
+import { ReactNode, useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 
 import { QaDrawer } from "@/components/qa/qa-drawer"
+import { OfflineBanner } from "@/components/shared/offline-banner"
 import { clearUserId, getUserId } from "@/lib/session/user-session"
+import {
+  subscribeToDemoMode,
+  wasDemoModeAnnounced,
+} from "@/lib/runtime/demo-mode"
 import { cn } from "@/lib/utils"
 
 const navigation = [
@@ -31,14 +36,27 @@ const isNavigationActive = (pathname: string, href: string) =>
   pathname.startsWith(href) ||
   (href === "/workspace" && pathname.startsWith("/resources/"))
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({
+  children,
+  initialDemoMode = process.env.NEXT_PUBLIC_AGENT_MODE !== "remote",
+}: {
+  children: ReactNode
+  initialDemoMode?: boolean
+}) {
   const [qaOpen, setQaOpen] = useState(false)
+  const [demoMode, setDemoMode] = useState(initialDemoMode)
   const pathname = usePathname()
   const router = useRouter()
   const current = navigation.find((item) =>
     isNavigationActive(pathname, item.href),
   )
   const userId = getUserId() ?? "未登录"
+
+  useEffect(() => {
+    const showDemoMode = () => setDemoMode(true)
+    if (wasDemoModeAnnounced()) showDemoMode()
+    return subscribeToDemoMode(showDemoMode)
+  }, [])
 
   const handleLogout = () => {
     clearUserId()
@@ -123,11 +141,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <BookOpenText aria-hidden="true" className="h-3.5 w-3.5" />
               课程未选择
             </span>
-            <span className="inline-flex h-8 items-center rounded-md bg-[#fff3d9] px-3 text-xs font-semibold text-[#8a5b05]">
-              演示模式
-            </span>
+            {demoMode ? (
+              <span className="inline-flex h-8 items-center rounded-md bg-[#fff3d9] px-3 text-xs font-semibold text-[#8a5b05]">
+                演示模式
+              </span>
+            ) : null}
           </div>
         </header>
+        <OfflineBanner />
         <main className="min-h-[calc(100vh-72px)] px-8 py-7">{children}</main>
       </div>
       <QaDrawer onOpenChange={setQaOpen} open={qaOpen} userId={userId} />

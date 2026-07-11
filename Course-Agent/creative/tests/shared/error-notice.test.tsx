@@ -24,7 +24,8 @@ describe("ErrorNotice", () => {
       />,
     )
 
-    expect(screen.getByText("AI 生成失败")).toBeInTheDocument()
+    expect(screen.getByText("内容安全拦截")).toBeInTheDocument()
+    expect(screen.getByText("调整问题后重试")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "重试" })).not.toBeInTheDocument()
   })
 })

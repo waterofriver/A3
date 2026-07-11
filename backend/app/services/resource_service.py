@@ -12,10 +12,12 @@ from app.schemas.resource import (
     ResourceDetail,
     ResourceGenerateRequest,
     ResourceSummary,
+    ResourceType,
     TaskAcceptedData,
 )
-from app.schemas.task import GatewayError, GatewayEvent
+from app.schemas.task import GatewayEvent
 from app.tasks.manager import TaskManager
+from app.services.agent_errors import gateway_error_from_exception
 
 resource_detail_adapter = TypeAdapter(ResourceDetail)
 
@@ -98,7 +100,7 @@ class ResourceService:
                 ) from error
             if (
                 source.task_type != "resource"
-                or source.status != "failed"
+                or source.status not in {"failed", "partial_success"}
                 or not (source.error or {}).get("retryable")
             ):
                 raise AppError(
@@ -156,6 +158,7 @@ class ResourceService:
     ) -> None:
         resource_ids: list[str] = []
         current_agent = "主管Agent"
+        current_resource_type: ResourceType | None = None
         demo_mode = self.demo_mode
         try:
             self._persist_event(
@@ -177,6 +180,7 @@ class ResourceService:
                 resource_types=payload.resource_type_list,
             ):
                 current_agent = internal.current_agent
+                current_resource_type = internal.resource_type
                 demo_mode = demo_mode or internal.demo_mode
                 resource_id = None
                 draft = internal.resource
@@ -232,11 +236,12 @@ class ResourceService:
                 },
             )
         except Exception as error:
-            gateway_error = GatewayError(
-                code="RESOURCE_GENERATION_FAILED",
-                message=f"资源生成失败：{error}",
-                retryable=True,
+            gateway_error = gateway_error_from_exception(
+                error,
+                default_code="RESOURCE_GENERATION_FAILED",
+                default_prefix="资源生成失败",
             )
+            failed_status = "partial_success" if resource_ids else "failed"
             self._persist_event(
                 GatewayEvent(
                     event="task.failed",
@@ -244,12 +249,13 @@ class ResourceService:
                     trace_id=trace_id,
                     current_agent=current_agent,
                     progress=0,
+                    resource_type=current_resource_type,
                     finish_flag=True,
                     resource_ids=resource_ids,
                     error=gateway_error,
                     demo_mode=demo_mode,
                 ),
-                status="failed",
+                status=failed_status,
                 result_snapshot={"resource_ids": resource_ids},
             )
 

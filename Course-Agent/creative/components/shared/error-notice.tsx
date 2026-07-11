@@ -7,15 +7,56 @@ type ErrorNoticeProps = {
   onRetry?: () => void
 }
 
-function errorTitle(error: ApiError | Error | string) {
-  if (!(error instanceof ApiError)) return "接口异常"
-  if (error.code === "VALIDATION_ERROR") return "参数缺失"
-  if (error.code === "NETWORK_UNAVAILABLE") return "接口异常"
-  return "AI 生成失败"
+const errorPresentations: Record<
+  string,
+  { title: string; guidance: string; retryLabel?: string }
+> = {
+  VALIDATION_ERROR: {
+    title: "参数缺失",
+    guidance: "检查输入内容",
+  },
+  CONTENT_BLOCKED: {
+    title: "内容安全拦截",
+    guidance: "调整问题后重试",
+  },
+  UPSTREAM_TIMEOUT: {
+    title: "AI 生成超时",
+    guidance: "重试此任务",
+    retryLabel: "重试此任务",
+  },
+  UPSTREAM_UNAVAILABLE: {
+    title: "Agent 服务不可用",
+    guidance: "检查服务状态后重试",
+  },
+  UPSTREAM_NOT_CONFIGURED: {
+    title: "Agent 服务未配置",
+    guidance: "检查远程 Agent 环境变量",
+  },
+  COURSE_NOT_READY: {
+    title: "课程不可用",
+    guidance: "课程资料未同步",
+  },
+  NETWORK_UNAVAILABLE: {
+    title: "接口异常",
+    guidance: "检查网络后重试",
+  },
+}
+
+function presentation(error: ApiError | Error | string) {
+  if (!(error instanceof ApiError)) {
+    return { title: "接口异常", guidance: "稍后重试" }
+  }
+  return (
+    errorPresentations[error.code] ?? {
+      title: "AI 生成失败",
+      guidance: error.retryable ? "稍后重试" : "检查任务参数",
+    }
+  )
 }
 
 export function ErrorNotice({ error, onRetry }: ErrorNoticeProps) {
   const message = typeof error === "string" ? error : error.message
+  const meta = presentation(error)
   const canRetry = error instanceof ApiError && error.retryable && onRetry
 
   return (
@@ -25,8 +66,11 @@ export function ErrorNotice({ error, onRetry }: ErrorNoticeProps) {
     >
       <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 text-[#c7463c]" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-[#8d3029]">{errorTitle(error)}</p>
+        <p className="text-sm font-semibold text-[#8d3029]">{meta.title}</p>
         <p className="mt-1 text-sm leading-6 text-[#74514e]">{message}</p>
+        {!canRetry || meta.guidance !== meta.retryLabel ? (
+          <p className="mt-1 text-xs font-medium text-[#9a5f59]">{meta.guidance}</p>
+        ) : null}
         {error instanceof ApiError && error.traceId ? (
           <p className="mt-2 text-xs text-[#9a6f6a]">追踪号：{error.traceId}</p>
         ) : null}
@@ -38,7 +82,7 @@ export function ErrorNotice({ error, onRetry }: ErrorNoticeProps) {
           type="button"
         >
           <RotateCcw aria-hidden="true" className="h-4 w-4" />
-          重试
+          {meta.retryLabel ?? "重试"}
         </button>
       ) : null}
     </div>

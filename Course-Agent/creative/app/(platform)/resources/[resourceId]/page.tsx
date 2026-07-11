@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react"
 
 import { ResourceCard } from "@/components/resources/resource-card"
 import { ErrorNotice } from "@/components/shared/error-notice"
+import { ResourceErrorBoundary } from "@/components/shared/resource-error-boundary"
 import { apiFetch } from "@/lib/api/client"
 import { queueLearningEvent } from "@/lib/api/learning-events"
 import type { ResourceDetail } from "@/lib/api/resource-types"
@@ -76,7 +77,9 @@ export default function ResourceDetailPage() {
         </div>
       ) : resourceQuery.data ? (
         <div className="mt-6">
-          <ResourceCard resource={resourceQuery.data} />
+          <ResourceErrorBoundary>
+            <ResourceCard resource={resourceQuery.data} />
+          </ResourceErrorBoundary>
         </div>
       ) : null}
     </div>
