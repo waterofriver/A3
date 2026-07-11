@@ -24,13 +24,8 @@ describe("legacy integrations", () => {
     expect(source).not.toMatch(/Coze|coze|论坛|\/api\/blogs/)
   })
 
-  it("disables the Django forum root route", () => {
-    const urls = fs.readFileSync(
-      path.join(repositoryRoot, "mywebsite/mywebsite/urls.py"),
-      "utf8",
-    )
-
-    expect(urls).not.toContain("include('core.urls')")
+  it("removes the legacy Django project", () => {
+    expect(fs.existsSync(path.join(repositoryRoot, "mywebsite"))).toBe(false)
   })
 
   it("removes the Coze-only root package manifest", () => {

@@ -4,8 +4,6 @@
 # Monorepo local build artifacts and virtual environments
 **/.next/
 **/out/
-mywebsite/venv/
-mywebsite/.venv/
 
 ### Django ###
 *.log
@@ -16,7 +14,6 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media
-mywebsite/upload/materials/
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
@@ -543,7 +540,5 @@ Course-Agent/creative/test-results/
 !Course-Agent/creative/lib/**
 !Course-Agent/creative/tests/lib/
 !Course-Agent/creative/tests/lib/**
-mywebsite/upload/
-mywebsite/**/*.db
 !.env.example
 !**/.env.example

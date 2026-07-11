@@ -2,7 +2,7 @@
 
 > 多智能体个性化学习系统
 
-智学引擎是一个面向 PC 演示和后续云部署的教学平台框架。活动前端位于 `Course-Agent/creative`，活动后端是 `backend` 中的 FastAPI + SQLite 网关。原论坛和 Coze 智能体接入已从活动产品中移除；`mywebsite` 仅作为历史 Django 代码保留，不参与启动或部署。
+智学引擎是一个面向 PC 演示和后续云部署的教学平台框架。活动前端位于 `Course-Agent/creative`，活动后端是 `backend` 中的 FastAPI + SQLite 网关。原论坛、旧 Django 项目和 Coze 智能体接入已从仓库移除。
 
 当前仓库可以在 `AGENT_MODE=mock` 下完整演示七个业务场景，也已经预留远程 Agent 适配层。Mock 模式只生成可验证的结构化文本数据，不在本地伪造 PNG 或 MP4；图片、短视频等真实素材必须由后续接入的 Agent 返回 `media_url`。
 
@@ -43,7 +43,6 @@ backend/                FastAPI 网关、SQLite、迁移和后端测试
 infra/nginx/            同源代理与 SSE 配置
 docs/                   组件、接口、部署和演示文档
 artifacts/              截图、演示和本地日志（部分产物被忽略）
-mywebsite/              非活动的历史 Django 参考代码
 docker-compose.yml      Web、API、Nginx 编排
 start.ps1 / start.sh    本地一键启动脚本
 ```
