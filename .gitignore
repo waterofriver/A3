@@ -536,6 +536,7 @@ backend/data/courses/
 artifacts/playwright/
 artifacts/test-results/
 artifacts/logs/
+artifacts/demo/raw/
 Course-Agent/creative/playwright-report/
 Course-Agent/creative/test-results/
 !Course-Agent/creative/lib/
