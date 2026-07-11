@@ -10,6 +10,7 @@ import {
 } from "./layout-audit"
 
 const screenshotRoot = path.resolve(__dirname, "../../../artifacts/screenshots")
+const updateVisualArtifacts = process.env.UPDATE_VISUAL_ARTIFACTS === "1"
 
 test.use({ trace: "on" })
 
@@ -22,11 +23,13 @@ async function capture(page: Page, filename: string) {
       element.style.setProperty("display", "none", "important")
     })
   })
-  await fs.mkdir(screenshotRoot, { recursive: true })
+  if (updateVisualArtifacts) {
+    await fs.mkdir(screenshotRoot, { recursive: true })
+  }
   const image = await page.screenshot({
     animations: "disabled",
     fullPage: true,
-    path: path.join(screenshotRoot, filename),
+    path: updateVisualArtifacts ? path.join(screenshotRoot, filename) : undefined,
   })
   expect(image.byteLength, `${filename} must not be blank`).toBeGreaterThan(20_000)
   await expectNoCriticalA11yViolations(page)
@@ -46,7 +49,7 @@ test("captures all delivery states", async ({ context, page }, testInfo) => {
     })
   })
 
-  const userId = `capture-${Date.now()}`
+  const userId = "capture-student"
   await page.goto("/login")
   await expect(page.getByRole("heading", { name: "智学引擎" })).toBeVisible()
   await capture(page, "01-login.png")
@@ -71,7 +74,9 @@ test("captures all delivery states", async ({ context, page }, testInfo) => {
     .getByPlaceholder("介绍你的专业、基础或学习目标")
     .fill("我正在学 ROS2，基础一般，薄弱点是发布订阅与 QoS，喜欢图解和代码。")
   await page.getByRole("button", { name: "发送" }).click()
-  await expect(page.getByText("画像抽取Agent")).toBeVisible()
+  await expect(
+    page.getByRole("progressbar", { name: "生成进度" }),
+  ).toHaveAttribute("aria-valuenow", "10")
   await capture(page, "02-profile-stream.png")
   await expect(page.getByRole("button", { name: "画像确认完成" })).toBeEnabled()
   await page.getByRole("button", { name: "画像确认完成" }).click()
@@ -133,7 +138,7 @@ test("captures all delivery states", async ({ context, page }, testInfo) => {
   await capture(networkPage, "10-network-error.png")
   await networkPage.close()
 
-  const failedUser = `failure-${Date.now()}`
+  const failedUser = "failure-student"
   const failurePage = await context.newPage()
   await seedConfirmedUser(failurePage, failedUser)
   await failurePage.route("**/api/resource/generate", (route) =>

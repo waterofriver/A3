@@ -3,6 +3,7 @@ import path from "node:path"
 import { defineConfig, devices } from "@playwright/test"
 
 const projectRoot = __dirname
+const e2eRunId = process.env.E2E_RUN_ID ?? `${process.pid}-${Date.now()}`
 
 export default defineConfig({
   testDir: "./e2e",
@@ -41,8 +42,8 @@ export default defineConfig({
         "..\\..\\backend\\.venv\\Scripts\\python -m uvicorn app.main:app --app-dir ..\\..\\backend --host 127.0.0.1 --port 8000",
       env: {
         AGENT_MODE: "mock",
-        DATABASE_URL: "sqlite:///../../backend/data/zhixue-e2e.db",
-        MOCK_EVENT_DELAY_MS: "180",
+        DATABASE_URL: `sqlite:///../../backend/data/zhixue-e2e-${e2eRunId}.db`,
+        MOCK_EVENT_DELAY_MS: "600",
       },
       reuseExistingServer: true,
       timeout: 120_000,

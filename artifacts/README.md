@@ -28,8 +28,10 @@
 ## 重新生成
 
 ```powershell
+$env:UPDATE_VISUAL_ARTIFACTS = '1'
 pnpm --dir Course-Agent/creative test:e2e -- e2e/visual-capture.spec.ts --project=desktop-1440
+Remove-Item Env:UPDATE_VISUAL_ARTIFACTS
 pnpm --dir Course-Agent/creative test:e2e -- e2e/full-platform-flow.spec.ts
 ```
 
-视觉测试会覆盖截图、录屏和 raw trace。若要更新精选视频，从最新 raw 场景目录复制最大的 `video.webm` 到 `demo/zhixue-main-flow.webm`，并在提交前重新检查全部截图是否存在裁切、重叠、空白图表或开发工具标记。
+视觉测试始终在内存中执行截图、文件大小、布局和无障碍断言；只有 `UPDATE_VISUAL_ARTIFACTS=1` 时才覆盖命名 PNG。录屏和 raw trace 每次都会写入被忽略的 raw 目录。若要更新精选视频，从最新 raw 场景目录复制最大的 `video.webm` 到 `demo/zhixue-main-flow.webm`，并在提交前重新检查全部截图是否存在裁切、重叠、空白图表或开发工具标记。
