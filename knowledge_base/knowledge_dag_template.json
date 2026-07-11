@@ -1,0 +1,21 @@
+{
+  "_comment": "=== 知识点 DAG 模板 === 请将 knowledge_points 数组填写完整后，把本文件重命名为 knowledge_dag.json。每个字段的含义请参阅 README.md。",
+
+  "course_name": "请替换为你的课程全称",
+  "course_description": "请用 1-2 句话概述这门课程的范围与目标",
+
+  "knowledge_points": [
+    {
+      "_comment": "▼ 以下是示例条目，仅用于展示格式。请删除本条，填入你的真实知识点。",
+
+      "id": "example_point_01",
+      "name": "示例：知识点名称",
+      "description": "示例：用 1-2 句话简述该知识点涵盖的内容",
+      "category": "示例：所属大模块 / 章节名",
+      "prerequisites": [],
+      "difficulty": 1,
+      "estimated_minutes": 30,
+      "tags": ["示例标签1", "示例标签2", "示例标签3"]
+    }
+  ]
+}
