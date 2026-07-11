@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.agents.mock import MockAgentProvider
 from app.api.routes.health import router as health_router
 from app.api.routes.evaluation import router as evaluation_router
+from app.api.routes.courses import media_router as course_media_router
 from app.api.routes.courses import router as courses_router
 from app.api.routes.learning import router as learning_router
 from app.api.routes.profile import router as profile_router
@@ -20,6 +21,7 @@ from app.core.logging import TraceIdMiddleware
 from app.db.database import Database
 from app.schemas.common import ErrorResponse
 from app.repositories.tasks import TaskRepository
+from app.services.course_indexer import CourseIndexer
 from app.tasks.manager import TaskManager
 
 
@@ -31,6 +33,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         db.create_schema()
+        CourseIndexer(db).index_root(resolved.course_root)
         with db.session() as session:
             TaskRepository(session).mark_interrupted_running_tasks()
         try:
@@ -69,6 +72,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router)
     app.include_router(evaluation_router)
     app.include_router(courses_router)
+    app.include_router(course_media_router)
     app.include_router(learning_router)
     app.include_router(users_router)
     app.include_router(profile_router)

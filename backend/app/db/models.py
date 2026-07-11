@@ -206,3 +206,40 @@ class EvaluationReport(Base):
     )
     evidence_hash: Mapped[str] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Course(Base):
+    __tablename__ = "courses"
+
+    slug: Mapped[str] = mapped_column(String(64), primary_key=True)
+    name: Mapped[str] = mapped_column(String(160), unique=True, index=True)
+    root_path: Mapped[str] = mapped_column(String(1000))
+    content_ready: Mapped[bool] = mapped_column(default=False)
+    is_demo: Mapped[bool] = mapped_column(default=False)
+    indexed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class CourseDocument(Base):
+    __tablename__ = "course_documents"
+    __table_args__ = (
+        UniqueConstraint(
+            "course_slug",
+            "relative_path",
+            name="uq_course_document_relative_path",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    course_slug: Mapped[str] = mapped_column(
+        ForeignKey("courses.slug"), index=True
+    )
+    chapter_path: Mapped[str] = mapped_column(String(500))
+    chapter_name: Mapped[str] = mapped_column(String(160))
+    relative_path: Mapped[str] = mapped_column(String(1000))
+    filename: Mapped[str] = mapped_column(String(260))
+    file_type: Mapped[str] = mapped_column(String(24))
+    sha256: Mapped[str] = mapped_column(String(64))
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    preview_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    media_url: Mapped[str | None] = mapped_column(String(1200), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

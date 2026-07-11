@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -16,6 +17,7 @@ class Settings(BaseSettings):
     web_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     sse_poll_interval_ms: int = 250
     sse_heartbeat_seconds: int = 15
+    course_root: Path = Path("./data/courses")
 
     @property
     def allowed_web_origins(self) -> list[str]:

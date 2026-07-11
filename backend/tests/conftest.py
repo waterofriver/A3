@@ -19,6 +19,7 @@ def settings(tmp_path: Path) -> Settings:
         database_url=f"sqlite:///{tmp_path / 'test.db'}",
         agent_mode="mock",
         mock_event_delay_ms=0,
+        course_root=tmp_path / "courses",
     )
 
 
