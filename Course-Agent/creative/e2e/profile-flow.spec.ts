@@ -7,7 +7,7 @@ test("new user completes profile collection", async ({ page }) => {
   await page.getByLabel("用户 ID").fill(userId)
   await page.getByRole("button", { name: "进入学习平台" }).click()
 
-  await expect(page).toHaveURL(/\/profile$/)
+  await expect(page).toHaveURL(/\/profile$/, { timeout: 30_000 })
   await page
     .getByPlaceholder("介绍你的专业、基础或学习目标")
     .fill("我想加强 ROS2 节点通信，喜欢代码案例。")

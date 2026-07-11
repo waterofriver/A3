@@ -228,8 +228,8 @@ export default function WorkspacePage() {
       <div
         className={`mt-6 grid items-start gap-6 ${
           task.taskId
-            ? "grid-cols-[330px_minmax(520px,1fr)_280px]"
-            : "grid-cols-[330px_minmax(560px,1fr)]"
+            ? "grid-cols-[minmax(280px,300px)_minmax(0,1fr)_minmax(230px,250px)]"
+            : "grid-cols-[minmax(280px,330px)_minmax(0,1fr)]"
         }`}
       >
         <GenerationForm
