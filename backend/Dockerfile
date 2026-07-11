@@ -10,7 +10,7 @@ COPY pyproject.toml alembic.ini ./
 COPY migrations ./migrations
 COPY app ./app
 
-RUN pip install --no-cache-dir . \
+RUN pip install --no-cache-dir . -i https://pypi.tuna.tsinghua.edu.cn/simple --timeout 300000 \
     && addgroup --system zhixue \
     && adduser --system --ingroup zhixue zhixue \
     && mkdir -p /app/data/courses /app/media \
