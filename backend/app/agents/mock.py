@@ -1,9 +1,17 @@
 import asyncio
+from collections import Counter
+from statistics import mean
 from collections.abc import AsyncIterator
 
 from app.agents.base import AgentProvider, ResourceAgentEvent, ResourceDraft
 from app.core.config import Settings
 from app.schemas.learning import LearningPathDraft, LearningPathNodeDraft
+from app.schemas.evaluation import (
+    EvaluationDraft,
+    EvaluationEvidence,
+    EvaluationRecommendedChange,
+    EvaluationWeakPoint,
+)
 from app.schemas.profile import StudentProfileData
 from app.schemas.qa import AnswerMode
 from app.schemas.resource import ResourceSummary, ResourceType
@@ -351,3 +359,57 @@ class MockAgentProvider(AgentProvider):
             yield event
             if self.settings.mock_event_delay_ms and index < len(events) - 1:
                 await asyncio.sleep(self.settings.mock_event_delay_ms / 1000)
+
+    async def build_evaluation(
+        self,
+        *,
+        user_id: str,
+        course_name: str,
+        evidence: EvaluationEvidence,
+    ) -> EvaluationDraft:
+        theory_score = (
+            round(mean(attempt.score for attempt in evidence.attempts))
+            if evidence.attempts
+            else 0
+        )
+        completed_practice = sum(node.completed for node in evidence.practice_nodes)
+        practice_score = round(
+            100 * completed_practice / max(len(evidence.practice_nodes), 1)
+        )
+
+        weak_counter: Counter[str] = Counter()
+        for attempt in evidence.attempts:
+            weak_counter.update(attempt.incorrect_points)
+        weak_counter.update(evidence.question_weak_points)
+        weak_points = [
+            EvaluationWeakPoint(name=name, frequency=frequency)
+            for name, frequency in sorted(
+                weak_counter.items(), key=lambda item: (-item[1], item[0])
+            )[:6]
+        ]
+        recommended_changes = [
+            EvaluationRecommendedChange(
+                stage_name=f"{weak_point.name}专项练习",
+                difficulty="巩固",
+                reason=f"该薄弱项在学习证据中出现 {weak_point.frequency} 次。",
+                resource_id=evidence.quiz_resource_id,
+            )
+            for weak_point in weak_points[:3]
+        ]
+        if not recommended_changes and any(
+            not node.completed for node in evidence.practice_nodes
+        ):
+            recommended_changes.append(
+                EvaluationRecommendedChange(
+                    stage_name="代码实操强化",
+                    difficulty="实操",
+                    reason="当前学习路径仍有未完成的实操节点。",
+                )
+            )
+
+        return EvaluationDraft(
+            theory_score=theory_score,
+            practice_score=practice_score,
+            weak_points=weak_points,
+            recommended_changes=recommended_changes,
+        )

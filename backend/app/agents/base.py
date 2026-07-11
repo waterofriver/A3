@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from app.schemas.profile import StudentProfileData
 from app.schemas.qa import AnswerMode
+from app.schemas.evaluation import EvaluationDraft, EvaluationEvidence
 from app.schemas.learning import LearningPathDraft
 from app.schemas.resource import ResourceSummary, ResourceType
 from app.schemas.task import GatewayEvent
@@ -74,4 +75,14 @@ class AgentProvider(ABC):
         answer_mode: AnswerMode,
         profile: StudentProfileData,
     ) -> AsyncIterator[GatewayEvent]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def build_evaluation(
+        self,
+        *,
+        user_id: str,
+        course_name: str,
+        evidence: EvaluationEvidence,
+    ) -> EvaluationDraft:
         raise NotImplementedError

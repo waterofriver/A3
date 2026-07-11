@@ -178,3 +178,31 @@ class LearningEvent(Base):
     duration_seconds: Mapped[int] = mapped_column(Integer, default=0)
     event_metadata: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class EvaluationReport(Base):
+    __tablename__ = "evaluation_reports"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "course_name",
+            "evidence_hash",
+            name="uq_evaluation_report_evidence",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_string)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    course_name: Mapped[str] = mapped_column(String(160), index=True)
+    theory_score: Mapped[int] = mapped_column(Integer)
+    practice_score: Mapped[int] = mapped_column(Integer)
+    weak_points: Mapped[list] = mapped_column(JSON, default=list)
+    recommended_changes: Mapped[list] = mapped_column(JSON, default=list)
+    source_path_id: Mapped[str] = mapped_column(
+        ForeignKey("learning_paths.id"), index=True
+    )
+    applied_path_id: Mapped[str | None] = mapped_column(
+        ForeignKey("learning_paths.id"), nullable=True, index=True
+    )
+    evidence_hash: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

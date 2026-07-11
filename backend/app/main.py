@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.agents.mock import MockAgentProvider
 from app.api.routes.health import router as health_router
+from app.api.routes.evaluation import router as evaluation_router
 from app.api.routes.courses import router as courses_router
 from app.api.routes.learning import router as learning_router
 from app.api.routes.profile import router as profile_router
@@ -66,6 +67,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_middleware(TraceIdMiddleware)
     register_error_handlers(app)
     app.include_router(health_router)
+    app.include_router(evaluation_router)
     app.include_router(courses_router)
     app.include_router(learning_router)
     app.include_router(users_router)
