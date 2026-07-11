@@ -3,6 +3,7 @@ FROM ${BASE_REGISTRY}/library/node:22-alpine AS dependencies
 RUN corepack enable
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm config set registry https://registry.npmmirror.com
 RUN pnpm install --frozen-lockfile
 
 FROM ${BASE_REGISTRY}/library/node:22-alpine AS builder
