@@ -11,6 +11,7 @@ services:
       AGENT_MODE: ${AGENT_MODE:-mock}
       ALLOW_MOCK_FALLBACK: ${ALLOW_MOCK_FALLBACK:-false}
       COURSE_ROOT: /app/data/courses
+      KNOWLEDGE_BASE_ROOT: /app/knowledge_base
       DATABASE_URL: sqlite:////app/data/zhixue.db
       REMOTE_AGENT_API_KEY: ${REMOTE_AGENT_API_KEY:-}
       REMOTE_AGENT_BASE_URL: ${REMOTE_AGENT_BASE_URL:-}
@@ -19,7 +20,8 @@ services:
     volumes:
       - zhixue-data:/app/data
       - zhixue-media:/app/media
-      - ./backend/data/courses:/app/data/courses:ro
+      - ./knowledge_base:/app/knowledge_base:ro
+      - zhixue-course-data:/app/data/courses
     healthcheck:
       test:
         - CMD
@@ -58,3 +60,4 @@ services:
 volumes:
   zhixue-data:
   zhixue-media:
+  zhixue-course-data:
