@@ -1,0 +1,8 @@
+.venv
+__pycache__
+.pytest_cache
+data
+media
+tests
+openapi.json
+*.egg-info

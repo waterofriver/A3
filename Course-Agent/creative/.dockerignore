@@ -1,0 +1,9 @@
+node_modules
+.next
+test-results
+playwright-report
+tests
+e2e
+*.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*

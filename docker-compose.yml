@@ -1,0 +1,60 @@
+services:
+  api:
+    build:
+      context: ./backend
+      args:
+        BASE_REGISTRY: ${BASE_REGISTRY:-docker.io}
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      AGENT_MODE: ${AGENT_MODE:-mock}
+      ALLOW_MOCK_FALLBACK: ${ALLOW_MOCK_FALLBACK:-false}
+      COURSE_ROOT: /app/data/courses
+      DATABASE_URL: sqlite:////app/data/zhixue.db
+      REMOTE_AGENT_API_KEY: ${REMOTE_AGENT_API_KEY:-}
+      REMOTE_AGENT_BASE_URL: ${REMOTE_AGENT_BASE_URL:-}
+      REMOTE_AGENT_TIMEOUT_SECONDS: ${REMOTE_AGENT_TIMEOUT_SECONDS:-120}
+      WEB_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+    volumes:
+      - zhixue-data:/app/data
+      - zhixue-media:/app/media
+      - ./backend/data/courses:/app/data/courses:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./Course-Agent/creative
+      args:
+        BASE_REGISTRY: ${BASE_REGISTRY:-docker.io}
+        NEXT_PUBLIC_AGENT_MODE: ${AGENT_MODE:-mock}
+        NEXT_PUBLIC_API_BASE_URL: ""
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    image: ${BASE_REGISTRY:-docker.io}/library/nginx:1.27-alpine
+    depends_on:
+      - api
+      - web
+    ports:
+      - "${ZHIXUE_PORT:-8080}:80"
+    volumes:
+      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+volumes:
+  zhixue-data:
+  zhixue-media:
