@@ -21,6 +21,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/eval/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Evaluation Report */
+        get: operations["get_evaluation_report_api_eval_report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/eval/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply Evaluation Plan */
+        post: operations["apply_evaluation_plan_api_eval_apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/course/list": {
         parameters: {
             query?: never;
@@ -134,6 +168,23 @@ export interface paths {
         put?: never;
         /** Confirm Profile */
         post: operations["confirm_profile_api_profile_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/chat/qa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Chat Qa */
+        post: operations["chat_qa_api_chat_qa_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -299,6 +350,67 @@ export interface components {
             error: components["schemas"]["GatewayError"];
             /** Trace Id */
             trace_id: string;
+        };
+        /** EvaluationApplyRequest */
+        EvaluationApplyRequest: {
+            /** Report Id */
+            report_id: string;
+        };
+        /** EvaluationApplyResponse */
+        EvaluationApplyResponse: {
+            data: components["schemas"]["LearningPathData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** EvaluationRecommendedChange */
+        EvaluationRecommendedChange: {
+            /** Stage Name */
+            stage_name: string;
+            /** Difficulty */
+            difficulty: string;
+            /** Reason */
+            reason: string;
+            /** Resource Id */
+            resource_id?: string | null;
+        };
+        /** EvaluationReportData */
+        EvaluationReportData: {
+            /** Theory Score */
+            theory_score: number;
+            /** Practice Score */
+            practice_score: number;
+            /** Weak Points */
+            weak_points: components["schemas"]["EvaluationWeakPoint"][];
+            /** Recommended Changes */
+            recommended_changes: components["schemas"]["EvaluationRecommendedChange"][];
+            /** Id */
+            id: string;
+            /** User Id */
+            user_id: string;
+            /** Course Name */
+            course_name: string;
+            /** Source Path Id */
+            source_path_id: string;
+            /** Applied Path Id */
+            applied_path_id?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** EvaluationReportResponse */
+        EvaluationReportResponse: {
+            data: components["schemas"]["EvaluationReportData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** EvaluationWeakPoint */
+        EvaluationWeakPoint: {
+            /** Name */
+            name: string;
+            /** Frequency */
+            frequency: number;
         };
         /** GatewayError */
         GatewayError: {
@@ -515,6 +627,19 @@ export interface components {
         ProfileConfirmRequest: {
             /** User Id */
             user_id: string;
+        };
+        /** QaRequest */
+        QaRequest: {
+            /** User Id */
+            user_id: string;
+            /** Question */
+            question: string;
+            /**
+             * Answer Mode
+             * @default text
+             * @enum {string}
+             */
+            answer_mode: "text" | "image" | "video";
         };
         /** QuizPayload */
         QuizPayload: {
@@ -813,6 +938,125 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_evaluation_report_api_eval_report_get: {
+        parameters: {
+            query: {
+                user_id: string;
+                course_name: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationReportResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    apply_evaluation_plan_api_eval_apply_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvaluationApplyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationApplyResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
             /** @description 统一错误响应 */
@@ -1191,6 +1435,66 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserInfoResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    chat_qa_api_chat_qa_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QaRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description 统一错误响应 */

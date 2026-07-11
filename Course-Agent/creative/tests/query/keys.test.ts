@@ -10,5 +10,15 @@ describe("queryKeys", () => {
       "student-001",
       "操作系统",
     ])
+    expect(queryKeys.path("student-001", "操作系统")).toEqual([
+      "path",
+      "student-001",
+      "操作系统",
+    ])
+    expect(queryKeys.evaluation("student-001", "操作系统")).toEqual([
+      "evaluation",
+      "student-001",
+      "操作系统",
+    ])
   })
 })
