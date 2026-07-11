@@ -6,14 +6,16 @@ import {
   BrainCircuit,
   LibraryBig,
   LogOut,
+  MessageCircleQuestion,
   Route,
   Sparkles,
   UserRoundSearch,
 } from "lucide-react"
 import Link from "next/link"
-import { ReactNode } from "react"
+import { ReactNode, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 
+import { QaDrawer } from "@/components/qa/qa-drawer"
 import { clearUserId, getUserId } from "@/lib/session/user-session"
 import { cn } from "@/lib/utils"
 
@@ -30,6 +32,7 @@ const isNavigationActive = (pathname: string, href: string) =>
   (href === "/workspace" && pathname.startsWith("/resources/"))
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const [qaOpen, setQaOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const current = navigation.find((item) =>
@@ -107,6 +110,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             <p className="mt-1 text-xs text-[#7a8799]">多智能体个性化学习系统</p>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              aria-label="打开智能答疑"
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-[#cdd8e8] bg-white text-[#526279] transition hover:border-[#9bb3dd] hover:bg-[#edf3ff] hover:text-[#2457d6]"
+              onClick={() => setQaOpen(true)}
+              title="智能答疑"
+              type="button"
+            >
+              <MessageCircleQuestion aria-hidden="true" className="h-4 w-4" />
+            </button>
             <span className="inline-flex h-8 items-center gap-2 rounded-md border border-[#d5dfef] bg-[#f7f9fc] px-3 text-xs font-medium text-[#526279]">
               <BookOpenText aria-hidden="true" className="h-3.5 w-3.5" />
               课程未选择
@@ -118,6 +130,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
         <main className="min-h-[calc(100vh-72px)] px-8 py-7">{children}</main>
       </div>
+      <QaDrawer onOpenChange={setQaOpen} open={qaOpen} userId={userId} />
     </div>
   )
 }

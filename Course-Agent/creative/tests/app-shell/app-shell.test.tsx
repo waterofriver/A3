@@ -35,6 +35,9 @@ describe("AppShell", () => {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument()
     }
     expect(screen.queryByText("社区")).not.toBeInTheDocument()
+    expect(
+      screen.getByRole("button", { name: "打开智能答疑" }),
+    ).toBeInTheDocument()
   })
 
   it("redirects a missing session to login", async () => {
