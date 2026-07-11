@@ -2,6 +2,10 @@
 
 > 本文档写给负责知识库搭建的同学。读完这篇，你就知道该怎样把"机器人与安全"课程的 Word/PPT/PDF/视频，整理成程序能直接读取的知识库。
 
+当前项目已经接好了自动同步链路：后端启动时会把 `knowledge_base/` 下的课程内容同步到 `backend/data/courses/<course_slug>/`，再由现有课程索引器读取。你只需要维护 `knowledge_dag.json` 和 `materials/`。
+
+`metadata.json` 和 `resource_index.json` 是增强层，不是必须项。当前框架可以只靠目录扫描工作，但如果你运行 `python build_knowledge_base.py`，会自动生成它们，方便后续做资源检索和 RAG 扩展。
+
 ---
 
 ## 一、你要交付的最终产物
@@ -12,6 +16,8 @@
 |------|--------|------|
 | 知识点 DAG | `knowledge_base/knowledge_dag.json` | 这门课的知识体系骨架，所有 Agent 靠它决定"先教什么、后教什么" |
 | 素材文件 | `knowledge_base/materials/` | 每个知识点对应的 Word、PPT、PDF、视频等原始资料 |
+| 后端运行目录 | `backend/data/courses/robot-safety/` | 后端启动时自动同步出来的可索引课程目录 |
+| 资源索引表 | `knowledge_base/resource_index.json` | 可选增强项，记录整个知识库的文件总清单 |
 
 ---
 
@@ -74,6 +80,10 @@
 
 打开 `knowledge_dag_template.json`，模板里有一条占位示例，你删掉它，然后按同样格式逐个填入你的真实知识点。
 
+模板还包含 `course_slug`，后端会用它把知识库同步到 `backend/data/courses/<course_slug>/`。
+
+如果你想生成资源索引和每个知识点目录下的 `metadata.json`，直接运行 `python build_knowledge_base.py`。
+
 ### 每个知识点的字段说明
 
 ```json
@@ -124,6 +134,8 @@ knowledge_base/
 2. **把所有相关素材扔进去**，文件名叫什么无所谓（中文英文都行）
 3. **支持的格式**：`.docx`、`.pptx`、`.pdf`、`.mp4`、`.png/.jpg`、`.txt/.md`
 
+> 你现在已经把所有资源压缩到 100MB 以下，因此这些文件可以直接纳入仓库。`parsed/` 仍然不是必须项，只有在你们后续要做单独的文本预处理流水线时才需要。
+
 ---
 
 ## 六、交付检查清单
@@ -137,6 +149,8 @@ knowledge_base/
 - [ ] 没有循环依赖（A 依赖 B，B 又依赖 A）
 - [ ] 每个知识点对应一个 `materials/` 下的文件夹，且里面有至少一份素材
 - [ ] 运行 `python validate_knowledge_base.py` 显示"校验通过"
+- [ ] 后端启动后能在 `backend/data/courses/robot-safety/` 看到同步结果
+- [ ] 如需增强检索能力，运行 `python build_knowledge_base.py` 生成 `metadata.json` 和 `resource_index.json`
 
 ---
 
@@ -153,3 +167,9 @@ A: 参考标准：1=高中生能懂的概念介绍；2=本科生通识课水平�
 
 **Q: 我的 JSON 格式写对了没有？**
 A: 填完后运行 `python validate_knowledge_base.py`，它会自动检查所有格式错误并告诉你第几行有问题。
+
+**Q: 为什么后端目录里也会有一份课程文件？**
+A: 这是为了兼容当前项目的现有课程索引器。`knowledge_base/` 是你维护知识点和素材的源目录，后端运行时会把它同步到 `backend/data/courses/robot-safety/`，再由现有 API 提供给前端。
+
+**Q: `parsed/` 现在要不要建？**
+A: 不用强制建。当前后端直接从原始文件提取预览文本，`parsed/` 只在你们后续决定把文档先转成纯文本或 Markdown 时才需要。

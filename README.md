@@ -113,7 +113,11 @@ ALLOW_MOCK_FALLBACK=false
 
 ## 课程知识库
 
-将真实课程文件放入 `backend/data/courses/<课程目录>/`。服务启动时索引 Markdown、PDF、DOCX 和 PPTX 的文本层。没有真实文件时知识库页面显示“课程资料未同步”，不会生成或填充虚构正文。
+知识库的源目录放在仓库根部的 `knowledge_base/`，你可以把课程素材按知识点 ID 放进 `knowledge_base/materials/<knowledge_point_id>/`，并维护 `knowledge_base/knowledge_dag.json`。后端启动时会把它同步到 `backend/data/courses/<course_slug>/`，再由现有索引器读取。
+
+`backend/data/courses/` 是运行时镜像，不需要你手工维护；它会在本地启动或 Docker 容器启动时由知识库自动同步生成。没有真实文件时知识库页面显示“课程资料未同步”，不会生成或填充虚构正文。
+
+你已经把资源压缩到 100MB 以下，因此可以直接提交这些资源文件。`parsed/`、`resource_index.json` 和每个目录里的 `metadata.json` 都属于增强层，按需生成即可。
 
 ## 验证命令
 
