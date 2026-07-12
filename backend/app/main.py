@@ -19,6 +19,7 @@ from app.core.errors import register_error_handlers
 from app.core.logging import TraceIdMiddleware
 from app.db.database import Database
 from app.schemas.common import ErrorResponse
+from app.services.knowledge_base_sync import sync_knowledge_base
 from app.repositories.tasks import TaskRepository
 from app.services.course_indexer import CourseIndexer
 from app.tasks.manager import TaskManager
@@ -32,6 +33,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         db.create_schema()
+        sync_knowledge_base(resolved.knowledge_base_root, resolved.course_root)
         CourseIndexer(db).index_root(resolved.course_root)
         with db.session() as session:
             TaskRepository(session).mark_interrupted_running_tasks()

@@ -1,0 +1,40 @@
+{
+  "id": "exp09_stereo_vision_attack",
+  "name": "实验九：双目视觉摄像头识别攻击",
+  "description": "结合视觉感知理解摄像头识别相关风险，学习攻击验证与安全边界。",
+  "category": "视觉与安全",
+  "keywords": [
+    "双目视觉",
+    "摄像头",
+    "识别攻击"
+  ],
+  "files": [
+    {
+      "name": "90_实验九 双目视觉摄像头识别攻击.docx",
+      "path": "90_实验九 双目视觉摄像头识别攻击.docx",
+      "file_type": "docx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 7342309
+    },
+    {
+      "name": "90_实验九 双目视觉摄像头识别攻击.pptx",
+      "path": "90_实验九 双目视觉摄像头识别攻击.pptx",
+      "file_type": "pptx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 7665379
+    },
+    {
+      "name": "metadata.json",
+      "path": "metadata.json",
+      "file_type": "json",
+      "resource_type": "supplementary",
+      "previewable": false,
+      "retrievable": true,
+      "size_bytes": 957
+    }
+  ]
+}

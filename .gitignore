@@ -240,6 +240,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# Knowledge base generated or oversized local media
+knowledge_base/parsed/
+backend/data/courses/
+
 # local env files
 .env*.local
 

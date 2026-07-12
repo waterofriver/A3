@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     sse_poll_interval_ms: int = 250
     sse_heartbeat_seconds: int = 15
     course_root: Path = Path("./data/courses")
+    knowledge_base_root: Path = Path("../knowledge_base")
 
     @property
     def allowed_web_origins(self) -> list[str]:
