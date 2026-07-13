@@ -1,0 +1,16 @@
+# ── LLM API ──
+openai>=1.0.0
+
+# ── 配置管理 ──
+python-dotenv>=1.0.0
+
+# ── 数据模型 ──
+pydantic>=2.0.0
+
+# ── 课件材料提取（PDF / DOCX / PPTX）──
+PyMuPDF>=1.27,<2          # PDF 文本提取（fitz）
+python-docx>=1.1,<2       # DOCX 文本提取
+python-pptx>=1.0,<2       # PPTX 文本提取
+
+# ── 视频时长检测（可选，Ubuntu 需 apt install ffmpeg）──
+# ffprobe 由 ffmpeg 包提供，非 Python 依赖
