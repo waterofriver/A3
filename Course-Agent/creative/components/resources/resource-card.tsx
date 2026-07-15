@@ -15,7 +15,7 @@ const labels: Record<ResourceType, string> = {
   handout: "讲义文档",
   mindmap: "思维导图",
   quiz: "习题题库",
-  code: "代码实操案例",
+  code: "拓展阅读",
   video: "教学图文视频",
 }
 

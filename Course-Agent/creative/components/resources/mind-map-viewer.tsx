@@ -76,14 +76,15 @@ export function MindMapViewer({ nodes }: { nodes: MindMapNode[] }) {
     >
       <ReactFlow
         edges={flowEdges}
-        elementsSelectable
         fitView
         fitViewOptions={{ padding: 0.2 }}
         nodes={flowNodes}
         nodesConnectable={false}
         nodesDraggable={false}
+        nodesFocusable={false}
         panOnScroll
         proOptions={{ hideAttribution: true }}
+        selectNodesOnDrag={false}
       >
         <Background color="#d7dfeb" gap={20} size={1} variant={BackgroundVariant.Dots} />
         <Controls position="bottom-right" showInteractive={false} />

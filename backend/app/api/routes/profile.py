@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 from app.agents.base import AgentProvider
 from app.api.dependencies import get_agent_provider
 from app.core.errors import AppError
+from app.db.models import ProfileMessage
 from app.repositories.profiles import ProfileRepository
 from app.repositories.users import UserRepository
 from app.schemas.profile import (
@@ -17,6 +19,44 @@ from app.schemas.task import GatewayEvent
 from app.services.profile_service import ProfileService
 
 router = APIRouter(tags=["profile"])
+
+
+class ProfileMessageData(BaseModel):
+    id: str
+    role: str
+    content: str
+
+
+class ProfileHistoryData(BaseModel):
+    messages: list[ProfileMessageData]
+
+
+class ProfileHistoryResponse(BaseModel):
+    data: ProfileHistoryData
+    trace_id: str
+
+
+@router.get("/api/chat/profile/history", response_model=ProfileHistoryResponse)
+def get_profile_history(
+    user_id: str = Query(min_length=1, max_length=64),
+    request: Request = None,  # type: ignore
+) -> ProfileHistoryResponse:
+    """获取用户的历史对话消息。"""
+    with request.app.state.db.session() as session:
+        rows = (
+            session.query(ProfileMessage)
+            .filter(ProfileMessage.user_id == user_id)
+            .order_by(ProfileMessage.created_at)
+            .all()
+        )
+        messages = [
+            ProfileMessageData(id=row.id, role=row.role, content=row.content)
+            for row in rows
+        ]
+    return ProfileHistoryResponse(
+        data=ProfileHistoryData(messages=messages),
+        trace_id=request.state.trace_id,
+    )
 
 
 @router.post(

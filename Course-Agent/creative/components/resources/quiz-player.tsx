@@ -70,26 +70,46 @@ export function QuizPlayer({ resource, userId, submitQuiz }: QuizPlayerProps) {
             </legend>
             {question.question_type === "choice" ? (
               <div className="mt-3 grid grid-cols-2 gap-2">
-                {question.options.map((option) => (
-                  <label
-                    className="flex min-h-10 cursor-pointer items-center gap-3 rounded-md border px-3 text-sm text-[#526279] has-[:checked]:border-[#2457d6] has-[:checked]:bg-[#edf3ff]"
-                    key={option}
-                  >
-                    <input
-                      checked={answers[question.id] === option}
-                      disabled={isSubmitting || Boolean(result)}
-                      name={question.id}
-                      onChange={() =>
-                        setAnswers((current) => ({
-                          ...current,
-                          [question.id]: option,
-                        }))
+                {question.options.map((option) => {
+                  // 提取选项前缀字母（"A. xxx" → "A"）
+                  const letter = option.match(/^([A-Z]+)[.\s、]/)?.[1] || option
+                  // 多选题用 checkbox，单选题用 radio
+                  const isMulti = question.answer.length > 1 && /^[A-Z]+$/.test(question.answer)
+
+                  const currentAnswers = (answers[question.id] || "").split("")
+                  const isChecked = isMulti
+                    ? currentAnswers.includes(letter)
+                    : answers[question.id] === letter
+
+                  const handleChange = () => {
+                    setAnswers((current) => {
+                      if (isMulti) {
+                        const prev = (current[question.id] || "").split("").filter(Boolean)
+                        const next = prev.includes(letter)
+                          ? prev.filter((l) => l !== letter)
+                          : [...prev, letter]
+                        return { ...current, [question.id]: next.sort().join("") }
                       }
-                      type="radio"
-                    />
-                    {option}
-                  </label>
-                ))}
+                      return { ...current, [question.id]: letter }
+                    })
+                  }
+
+                  return (
+                    <label
+                      className="flex min-h-10 cursor-pointer items-center gap-3 rounded-md border px-3 text-sm text-[#526279] has-[:checked]:border-[#2457d6] has-[:checked]:bg-[#edf3ff]"
+                      key={option}
+                    >
+                      <input
+                        checked={isChecked}
+                        disabled={isSubmitting || Boolean(result)}
+                        name={question.id}
+                        onChange={handleChange}
+                        type={isMulti ? "checkbox" : "radio"}
+                      />
+                      {option}
+                    </label>
+                  )
+                })}
               </div>
             ) : question.question_type === "blank" ? (
               <div className="mt-3">

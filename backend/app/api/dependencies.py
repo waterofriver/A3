@@ -3,6 +3,7 @@ from fastapi import Request
 
 from app.agents.base import AgentProvider
 from app.agents.mock import MockAgentProvider
+from app.agents.real import RealAgentProvider
 from app.agents.remote import FallbackAgentProvider, RemoteAgentProvider
 from app.core.config import Settings
 from app.core.errors import AppError
@@ -12,7 +13,10 @@ def create_agent_provider(
     settings: Settings,
     *,
     client: httpx.AsyncClient | None = None,
+    db=None,
 ) -> AgentProvider:
+    if settings.agent_mode == "local":
+        return RealAgentProvider(db=db)
     if settings.agent_mode == "mock":
         return MockAgentProvider(settings)
     if not settings.remote_agent_base_url.strip():
@@ -31,6 +35,9 @@ def create_agent_provider(
 def get_agent_provider(request: Request) -> AgentProvider:
     provider = request.app.state.agent_provider
     if provider is None:
-        provider = create_agent_provider(request.app.state.settings)
+        provider = create_agent_provider(
+            request.app.state.settings,
+            db=request.app.state.db,
+        )
         request.app.state.agent_provider = provider
     return provider

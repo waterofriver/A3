@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Route } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -38,6 +38,32 @@ export default function LearningPathPage() {
     enabled: Boolean(userId && course?.name && userQuery.data?.profile_confirmed),
   })
 
+  const queryClient = useQueryClient()
+
+  const handleNodeComplete = async (nodeId: string, stageName: string) => {
+    if (!userId || !course?.name) return
+    try {
+      await apiFetch("/api/learning/events", {
+        method: "POST",
+        body: JSON.stringify({
+          user_id: userId,
+          course_name: course.name,
+          events: [
+            {
+              event_type: "path_node_completed",
+              path_node_id: nodeId,
+              client_started_at: new Date().toISOString(),
+            },
+          ],
+        }),
+      })
+      // 刷新路径数据使节点变绿
+      queryClient.invalidateQueries({ queryKey: ["path", userId, course.name] })
+    } catch {
+      // 静默失败
+    }
+  }
+
   const error = coursesQuery.error ?? userQuery.error ?? pathQuery.error
 
   return (
@@ -70,6 +96,7 @@ export default function LearningPathPage() {
           <LearningPathGraph
             nodes={pathQuery.data.nodes}
             onOpenResource={(resourceId) => router.push(`/resources/${resourceId}`)}
+            onCompleteNode={handleNodeComplete}
           />
         </div>
       ) : (

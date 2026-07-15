@@ -158,10 +158,18 @@ _SYSTEM_PROMPT = """
 }
 ```
 
-## is_complete 判定标准
-- 当至少 4 个维度有具体信息时，设为 true
-- 当学生明确表示不想继续时，设为 true
-- 否则设为 false，并通过 follow_up_question 询问缺失的维度
+## 智能推断规则（减少不必要的追问）
+
+- **薄弱环节推断**：如果学生刚开始接触一门课程/知识领域，显然还没有薄弱点，直接设 `weak_points: []`，不要追问"你有什么薄弱点"
+- **认知风格推断**：提到"喜欢动手"、"做实验" → practice_oriented；提到"看理论书"、"推导公式" → theory_oriented；无需反复确认
+- **学习节奏推断**：提到"每天学"、"每周" → distributed；提到"集中突击" → intensive
+- **is_complete 判定**：
+  - 必须 6 个维度全部明确后才设为 true
+  - "薄弱点为 []（空）"也视为该维度已明确——初学者没有薄弱点是正常的
+  - 如果某个维度确实无法从对话中获取，追问 1 次后仍无信息则设为默认值并完成
+  - 学生明确表示不想继续时设为 true
+  - 6 个维度是：基础信息(major/grade)、知识基础、认知风格、学习目标、薄弱环节、学习节奏与兴趣
+- **每次只问 1 个最关键的缺失维度**，不要一次问多个问题
 
 ## 仅输出新信息的规则
 - 如果 extracted_fields 中某个字段在本次输入中没有新信息，将该字段设为 null（JSON null）
@@ -552,8 +560,8 @@ class ProfileAgent:
             return False
 
         dim_count = self._count_dimensions(profile)
-        # 至少需要 2 个维度才算有意义
-        if dim_count < 2:
+        # 安全下限：至少 4 个维度有效才认可完成（系统提示要求全部 6 维）
+        if dim_count < 4:
             logger.info(f"完成度覆盖: LLM 判定完成但仅 {dim_count} 个维度有效 → 强制 incomplete")
             return False
 

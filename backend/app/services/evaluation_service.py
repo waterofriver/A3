@@ -82,7 +82,6 @@ class EvaluationService:
                     completed=node.completed_at is not None,
                 )
                 for node in nodes
-                if node.difficulty == "实操" or "实操" in node.stage_name
             ]
             question_weak_points = []
             for event in question_events:

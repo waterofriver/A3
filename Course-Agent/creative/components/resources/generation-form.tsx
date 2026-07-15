@@ -1,8 +1,8 @@
 "use client"
 
 import {
-  Braces,
   FileText,
+  LibraryBig,
   ListChecks,
   Network,
   Sparkles,
@@ -33,7 +33,7 @@ const resourceOptions = [
   { type: "handout", label: "讲义文档", icon: FileText },
   { type: "mindmap", label: "思维导图", icon: Network },
   { type: "quiz", label: "习题题库", icon: ListChecks },
-  { type: "code", label: "代码实操案例", icon: Braces },
+  { type: "code", label: "拓展阅读", icon: LibraryBig },
   { type: "video", label: "教学图文视频", icon: Video },
 ] as const
 

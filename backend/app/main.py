@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.health import router as health_router
 from app.api.routes.evaluation import router as evaluation_router
 from app.api.routes.courses import media_router as course_media_router
+from app.api.routes.courses import direct_media_router
 from app.api.routes.courses import router as courses_router
 from app.api.routes.learning import router as learning_router
 from app.api.routes.profile import router as profile_router
@@ -33,8 +34,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         db.create_schema()
-        sync_knowledge_base(resolved.knowledge_base_root, resolved.course_root)
-        CourseIndexer(db).index_root(resolved.course_root)
+        try:
+            sync_knowledge_base(resolved.knowledge_base_root, resolved.course_root)
+            CourseIndexer(db).index_root(resolved.course_root)
+        except Exception as exc:
+            import logging
+            logging.getLogger("startup").warning(
+                f"知识库同步/索引失败（不影响 API 启动）: {exc}"
+            )
         with db.session() as session:
             TaskRepository(session).mark_interrupted_running_tasks()
         try:
@@ -75,6 +82,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(evaluation_router)
     app.include_router(courses_router)
     app.include_router(course_media_router)
+    app.include_router(direct_media_router)
     app.include_router(learning_router)
     app.include_router(users_router)
     app.include_router(profile_router)

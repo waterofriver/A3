@@ -36,7 +36,7 @@ function PathStageNode({ data }: NodeProps<PathFlowNode>) {
           ? "阶段已完成"
           : data.resourceId
             ? "打开绑定资源"
-            : "暂无绑定资源"}
+            : "点击标记完成"}
       </p>
     </div>
   )
@@ -56,7 +56,7 @@ function buildGraph(nodes: LearningPathNode[]) {
       completed: Boolean(node.completed_at),
     },
     draggable: false,
-    selectable: Boolean(node.resource_id),
+    selectable: true,
     style: {
       width: 196,
       minHeight: 96,
@@ -82,9 +82,11 @@ function buildGraph(nodes: LearningPathNode[]) {
 export function LearningPathGraph({
   nodes,
   onOpenResource,
+  onCompleteNode,
 }: {
   nodes: LearningPathNode[]
   onOpenResource: (resourceId: string) => void
+  onCompleteNode?: (nodeId: string, stageName: string) => void
 }) {
   const { edges, flowNodes } = useMemo(() => buildGraph(nodes), [nodes])
 
@@ -98,12 +100,17 @@ export function LearningPathGraph({
         nodeTypes={nodeTypes}
         nodesConnectable={false}
         nodesDraggable={false}
+        nodesFocusable={false}
         onNodeClick={(_, node) => {
-          const resourceId = node.data.resourceId
-          if (resourceId) onOpenResource(resourceId)
+          if (node.data.resourceId) {
+            onOpenResource(node.data.resourceId)
+          } else if (onCompleteNode) {
+            onCompleteNode(node.id, node.data.stageName)
+          }
         }}
         panOnScroll
         proOptions={{ hideAttribution: true }}
+        selectNodesOnDrag={false}
       >
         <Background color="#d8e1ee" gap={20} size={1} variant={BackgroundVariant.Dots} />
         <Controls position="bottom-right" showInteractive={false} />

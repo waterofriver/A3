@@ -75,9 +75,9 @@ export function clearActiveResourceTask(userId: string, courseName: string) {
   window.localStorage.removeItem(activeTaskKey(userId, courseName))
 }
 
-const appendUnique = (current: string[], incoming: string[]) => [
+const appendUnique = (current: string[], incoming?: string[]) => [
   ...current,
-  ...incoming.filter((id) => !current.includes(id)),
+  ...(incoming ?? []).filter((id) => !current.includes(id)),
 ]
 
 export function applyResourceEvent(

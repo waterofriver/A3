@@ -87,6 +87,30 @@ export function ProfilePage({
     enabled: Boolean(userId),
   })
 
+  // 加载历史对话
+  const historyQuery = useQuery({
+    queryKey: ["profile-history", userId],
+    queryFn: () =>
+      apiFetch<{ messages: { id: string; role: string; content: string }[] }>(
+        `/api/chat/profile/history?user_id=${encodeURIComponent(userId)}`,
+      ),
+    enabled: Boolean(userId),
+  })
+
+  // 合并历史 → messages
+  useEffect(() => {
+    if (historyQuery.data?.messages?.length) {
+      setMessages((prev) => {
+        const existingIds = new Set(prev.map((m) => m.id))
+        const history = historyQuery.data.messages
+          .filter((m) => !existingIds.has(m.id))
+          .map((m) => ({ id: m.id, role: m.role as "user" | "assistant", content: m.content }))
+        if (history.length === 0) return prev
+        return [...history, ...prev]
+      })
+    }
+  }, [historyQuery.data])
+
   useEffect(() => () => abortRef.current?.abort(), [])
 
   const streamedProfile = taskState.profile as StudentProfile | null

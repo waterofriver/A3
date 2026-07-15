@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str = "sqlite:///./data/zhixue.db"
-    agent_mode: Literal["mock", "remote"] = "mock"
+    agent_mode: Literal["mock", "remote", "local"] = "mock"
     mock_event_delay_ms: int = 40
     remote_agent_base_url: str = ""
     remote_agent_api_key: str = ""
