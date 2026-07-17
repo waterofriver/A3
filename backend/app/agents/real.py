@@ -57,6 +57,41 @@ def _material_loader() -> MaterialLoader:
 # 画像格式转换
 # ═══════════════════════════════════════════════════════════════
 
+def _map_cognitive_style(api_style: str) -> CognitiveStyle:
+    """子串匹配认知风格，容忍 LLM 返回的描述性文本。"""
+    if not api_style or api_style == "待采集":
+        return CognitiveStyle.BALANCED
+    style = api_style
+    if any(w in style for w in ["理论", "概念", "原理", "推导", "数学"]):
+        return CognitiveStyle.THEORY_ORIENTED
+    if any(w in style for w in ["实践", "案例", "操作", "动手", "项目", "实验", "驱动"]):
+        return CognitiveStyle.PRACTICE_ORIENTED
+    return CognitiveStyle.BALANCED
+
+
+def _map_learning_pace(api_pace: str) -> LearningPace:
+    """子串匹配学习节奏，容忍 LLM 返回的描述性文本。"""
+    if not api_pace or api_pace == "待采集":
+        return LearningPace.FLEXIBLE
+    pace = api_pace
+    if any(w in pace for w in ["密集", "突击", "集中", "快速", "短期", "冲刺"]):
+        return LearningPace.INTENSIVE
+    if any(w in pace for w in ["分散", "长期", "逐步", "分阶段", "循序渐进", "阶段"]):
+        return LearningPace.DISTRIBUTED
+    return LearningPace.FLEXIBLE
+
+
+def _extract_major(api: StudentProfileData) -> str:
+    """尝试从 knowledge_foundation 中提取专业/领域信息。"""
+    kf = (api.knowledge_foundation or "").strip()
+    if not kf or kf == "待采集":
+        return ""
+    first_line = kf.split("\n")[0].strip()
+    if len(first_line) <= 50:
+        return first_line
+    return ""
+
+
 def _api_to_agent_profile(api: StudentProfileData) -> StudentProfile:
     """API 画像 → Agent 画像（保留尽量多信息以便增量更新）。"""
     kb_items: list[KnowledgeBaseItem] = []
@@ -80,23 +115,14 @@ def _api_to_agent_profile(api: StudentProfileData) -> StudentProfile:
                 occurrence_count=1,
             ))
 
-    cognitive_map = {
-        "偏理论": CognitiveStyle.THEORY_ORIENTED,
-        "偏实践": CognitiveStyle.PRACTICE_ORIENTED,
-    }
-    pace_map = {
-        "密集突击": LearningPace.INTENSIVE,
-        "分散学习": LearningPace.DISTRIBUTED,
-    }
-
     return StudentProfile(
-        major="",
+        major=_extract_major(api),
         grade="",
-        cognitive_style=cognitive_map.get(api.cognitive_style or "", CognitiveStyle.BALANCED),
+        cognitive_style=_map_cognitive_style(api.cognitive_style or ""),
         learning_goal_short=api.short_term_goal or "",
         learning_goal_long="",
         weak_points=weak_points,
-        learning_pace=pace_map.get(api.learning_pace or "", LearningPace.FLEXIBLE),
+        learning_pace=_map_learning_pace(api.learning_pace or ""),
         interest_domains=list(set(api.content_preferences or [])),
         knowledge_base=kb_items,
     )
@@ -128,32 +154,79 @@ def _agent_to_api_profile(agent: StudentProfile) -> dict:
 
 
 def _profile_ready(profile) -> bool:
-    """严格检验画像是否真的有足够维度（不信任 LLM 的 is_complete）。"""
+    """严格检验画像是否真的有足够维度（不信任 LLM 的 is_complete）。
+
+    维度定义必须与 ProfileAgent._count_dimensions 保持一致！
+    否则会出现 LLM 判定完成但平台判定未完成的不一致。
+    """
+    return _count_profile_dimensions(profile) >= 4
+
+
+def _count_profile_dimensions(profile) -> int:
+    """统计画像已填满的维度数量。
+
+    ⚠️ 维度定义必须与 ProfileAgent._count_dimensions() 完全一致！
+    任何修改都需要两边同步，否则 LLM 与平台的完成判定会不一致。
+
+    注意：StudentProfile 使用 use_enum_values=True，但属性访问仍返回枚举对象。
+    因此比较时直接用 != \"value_string\"（利用 str Enum 的字符串比较特性），
+    不要用 str() 包裹枚举对象。
+    """
     filled = 0
-    # 1. 基础信息：major 和 grade 至少一个有非默认值
+    # 1. 基础信息：专业或年级
     if profile.major or profile.grade:
         filled += 1
     # 2. 知识基础：至少有一个知识点
     if profile.knowledge_base:
         filled += 1
-    # 3. 认知风格：非默认 BALANCED
-    if profile.cognitive_style and str(profile.cognitive_style) != "balanced":
+    # 3. 认知风格：非默认 BALANCED（str Enum 可直接与字符串比较）
+    if profile.cognitive_style != "balanced":
         filled += 1
-    # 4. 学习目标：短目标或长目标有实质内容（排除默认空字符串）
-    if profile.learning_goal_short and profile.learning_goal_short.strip():
-        filled += 1
-    elif profile.learning_goal_long and profile.learning_goal_long.strip():
+    # 4. 学习目标：短目标或长目标有实质内容
+    if profile.learning_goal_short or profile.learning_goal_long:
         filled += 1
     # 5. 薄弱环节：有列出的薄弱点
     if profile.weak_points:
         filled += 1
-    # 6. 学习节奏与兴趣
-    if profile.learning_pace and str(profile.learning_pace) != "flexible":
+    # 6. 学习节奏与兴趣（合并为一个维度，同 ProfileAgent）
+    if profile.learning_pace != "flexible" or profile.interest_domains:
         filled += 1
-    elif profile.interest_domains:
-        filled += 1
+    return filled
 
-    return filled >= 5
+
+def _missing_dimension_question(profile) -> str | None:
+    """返回针对第一个缺失维度的追问，全部满足则返回 None。
+
+    维度检查顺序与 _count_profile_dimensions 保持一致。
+    注意维度 6（学习节奏与兴趣）是合并维度：有一个满足即认为已填。
+    """
+    # 1. 基础信息
+    if not profile.major and not profile.grade:
+        return "能告诉我你的专业和年级吗？这有助于为你定制更精准的学习内容。"
+    # 2. 知识基础
+    if not profile.knowledge_base:
+        return "能具体说说你目前已经掌握了哪些知识点或技能吗？比如编程语言、工具、框架等。"
+    # 3. 认知风格
+    if profile.cognitive_style == "balanced":
+        return (
+            "你更偏好通过哪种方式来学习新知识？"
+            "是喜欢先理解概念和原理再动手，还是通过案例和项目直接实践？"
+        )
+    # 4. 学习目标
+    if not profile.learning_goal_short and not profile.learning_goal_long:
+        return "你近期有什么具体的学习目标或计划吗？比如想完成哪门课程、达到什么水平？"
+    # 5. 薄弱环节
+    if not profile.weak_points:
+        return (
+            "在学习过程中，有没有哪些知识点你觉得比较吃力、需要重点加强的？"
+            "如果刚开始学习暂时还没有，直接说「没有」即可。"
+        )
+    # 6. 学习节奏与兴趣（合并维度：两者都缺才追问其中一个）
+    pace_missing = profile.learning_pace == "flexible"
+    interest_missing = not profile.interest_domains
+    if pace_missing and interest_missing:
+        return "你的学习节奏是怎样的？倾向于集中时间密集突击，还是分散在日常循序渐进？"
+    return None
 
 
 def _is_confirmation_message(text: str) -> bool:
@@ -217,6 +290,27 @@ class RealAgentProvider(AgentProvider):
     def __init__(self, db=None):
         self._db = db
 
+    def _try_confirm_profile(self, user_id: str) -> None:
+        """将画像标记为「已确认」，失败时记录日志而不是静默吞掉。
+
+        快捷确认路径和普通完成路径都会调用此方法，
+        确保 confirmed_at 在任何一种完成方式下都能被写入。
+        """
+        if self._db is None:
+            logger.warning("无法确认画像：DB 实例未注入（user_id=%s）", user_id)
+            return
+        try:
+            from app.repositories.profiles import ProfileRepository
+            with self._db.session() as session:
+                ProfileRepository(session).confirm(user_id)
+        except LookupError:
+            logger.warning(
+                "画像确认失败：user_id=%s 的画像记录不存在，可能尚未持久化。",
+                user_id,
+            )
+        except Exception:
+            logger.exception("画像确认时发生未预期异常（user_id=%s）", user_id)
+
     # ── 画像采集 ──────────────────────────────────────────
 
     async def stream_profile(
@@ -251,12 +345,9 @@ class RealAgentProvider(AgentProvider):
             except Exception:
                 pass  # DB 不可用时忽略
 
-        # ── 死循环检测：画像已基本完整 + 用户明显在确认 → 跳过ProfileAgent ──
+        # ── 快捷确认：用户明显在确认 + 画像已通过多维度校验 → 跳过 ProfileAgent ──
         is_confirmation = _is_confirmation_message(chat_text)
-        profile_is_rich = current_profile and (
-            (current_profile.knowledge_foundation and current_profile.knowledge_foundation != "待采集") and
-            (current_profile.cognitive_style and current_profile.cognitive_style != "待采集")
-        )
+        profile_is_rich = existing is not None and _profile_ready(existing)
 
         if is_confirmation and profile_is_rich:
             # 直接返回引导消息，不再调 ProfileAgent
@@ -277,6 +368,8 @@ class RealAgentProvider(AgentProvider):
                     current_agent="画像Agent", progress=80,
                     profile_patch=current_profile.model_dump(), demo_mode=False,
                 )
+            # 快捷路径也不能忘记将画像标记为「已确认」
+            self._try_confirm_profile(user_id)
             yield GatewayEvent(
                 event="task.completed", task_id=task_id, trace_id=trace_id,
                 current_agent="画像Agent", progress=100, finish_flag=True, demo_mode=False,
@@ -318,12 +411,17 @@ class RealAgentProvider(AgentProvider):
 
         # ── 严格检验：不信任 LLM 的 is_complete，自行数维度 ──
         profile = result.profile
-        actually_complete = result.is_complete and profile is not None and _profile_ready(profile)
+        profile_ready = profile is not None and _profile_ready(profile)
 
-        if result.is_complete and not actually_complete:
-            # LLM 说完成了但维度不够 → 强制继续
-            assistant_text = result.follow_up_question or "请再详细说说你的学习情况和目标吧。"
-        elif actually_complete:
+        if profile is not None and not profile_ready:
+            # 画像维度不足 → 用针对性追问（不论 LLM 怎么判定）
+            # 这里不依赖 result.is_complete，因为 _check_completion_override
+            # 可能已经把 LLM 的 is_complete=true 覆写为 false，
+            # 此时 result.follow_up_question 为空（LLM 以为完成了），
+            # rationale 也不是一个有效的追问。必须用针对性提问打破死循环。
+            targeted = _missing_dimension_question(profile)
+            assistant_text = targeted or result.follow_up_question or "请再详细说说你的学习情况和目标吧。"
+        elif profile_ready:
             assistant_text = "好的，我已经对你的学习情况有了比较全面的了解。点击左侧导航栏的「学习路径」即可查看个性化学习路径，或者去「资源工作台」生成专属学习资料。"
 
         yield GatewayEvent(
@@ -341,13 +439,8 @@ class RealAgentProvider(AgentProvider):
                 profile_patch=profile_patch, demo_mode=False,
             )
 
-        if actually_complete and self._db is not None:
-            try:
-                from app.repositories.profiles import ProfileRepository
-                with self._db.session() as session:
-                    ProfileRepository(session).confirm(user_id)
-            except Exception:
-                pass
+        if profile_ready:
+            self._try_confirm_profile(user_id)
 
         yield GatewayEvent(
             event="task.completed", task_id=task_id, trace_id=trace_id,
