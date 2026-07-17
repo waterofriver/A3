@@ -70,6 +70,23 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def chapter_display_name(course_dir: Path, relative_path: Path) -> str:
+    chapter_path = relative_path.parent
+    if chapter_path == Path("."):
+        return "课程资料"
+
+    metadata_path = course_dir / chapter_path / "metadata.json"
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        name = str(metadata.get("name", "")).strip()
+        if name:
+            return name
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        pass
+
+    return chapter_path.name
+
+
 def extract_preview(path: Path, extension: str) -> str | None:
     if extension in TEXT_EXTENSIONS:
         return path.read_text(encoding="utf-8", errors="replace")[:MAX_PREVIEW_CHARS]
@@ -164,7 +181,7 @@ class CourseIndexer:
 
                 document_drafts = []
                 for path in sorted(course_dir.rglob("*")):
-                    if not path.is_file() or path.name == "course.json":
+                    if not path.is_file() or path.name in {"course.json", "metadata.json"}:
                         continue
                     extension = path.suffix.lower()
                     if extension not in SUPPORTED_EXTENSIONS:
@@ -175,11 +192,7 @@ class CourseIndexer:
                     except ValueError:
                         continue
                     chapter_path = relative.parent.as_posix()
-                    chapter_name = (
-                        relative.parent.name
-                        if chapter_path != "."
-                        else "课程资料"
-                    )
+                    chapter_name = chapter_display_name(course_dir, relative)
                     try:
                         preview_text = extract_preview(safe_path, extension)
                     # A broken source document remains downloadable even if its preview cannot be extracted.

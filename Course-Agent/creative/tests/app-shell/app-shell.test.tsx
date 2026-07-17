@@ -75,4 +75,18 @@ describe("AppShell", () => {
 
     expect(await screen.findByText("演示模式")).toBeInTheDocument()
   })
+
+  it("shows the selected course instead of generic course status badges", () => {
+    localStorage.setItem("zhixue_selected_course", "机器人与安全")
+
+    render(
+      <AppShell>
+        <div>course content</div>
+      </AppShell>,
+    )
+
+    expect(screen.getByText("机器人与安全")).toBeInTheDocument()
+    expect(screen.queryByText("课程未选择")).not.toBeInTheDocument()
+    expect(screen.queryByText("演示模式")).not.toBeInTheDocument()
+  })
 })

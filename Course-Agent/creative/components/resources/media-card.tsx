@@ -10,11 +10,11 @@ export function MediaCard({
 }) {
   return (
     <div>
-      <div className="overflow-hidden rounded-md border bg-[#111827]">{children}</div>
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-950 shadow-md">{children}</div>
       <div className="mt-3 flex justify-end gap-2">
         <a
           aria-label="新窗口预览素材"
-          className="flex h-9 w-9 items-center justify-center rounded-md border text-[#526279] hover:bg-[#f4f7fb] hover:text-[#2457d6]"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition-all duration-150 hover:border-slate-300 hover:bg-slate-50 hover:text-primary active:scale-95"
           href={mediaUrl}
           rel="noreferrer"
           target="_blank"
@@ -24,7 +24,7 @@ export function MediaCard({
         </a>
         <a
           aria-label="下载素材"
-          className="flex h-9 w-9 items-center justify-center rounded-md border text-[#526279] hover:bg-[#f4f7fb] hover:text-[#2457d6]"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition-all duration-150 hover:border-slate-300 hover:bg-slate-50 hover:text-primary active:scale-95"
           download
           href={mediaUrl}
           title="下载素材"

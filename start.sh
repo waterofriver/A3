@@ -25,6 +25,7 @@ corepack pnpm --dir "$FRONTEND" install --frozen-lockfile
 (cd "$BACKEND" && "$PYTHON" -m alembic upgrade head)
 
 export NEXT_PUBLIC_API_BASE_URL="http://127.0.0.1:$API_PORT"
+export WEB_ORIGINS="http://127.0.0.1:$WEB_PORT,http://localhost:$WEB_PORT"
 export NEXT_PUBLIC_AGENT_MODE="${NEXT_PUBLIC_AGENT_MODE:-${AGENT_MODE:-mock}}"
 
 "$PYTHON" -m uvicorn app.main:app --app-dir "$BACKEND" --host 127.0.0.1 --port "$API_PORT" --workers 1 >"$LOGS/api.log" 2>"$LOGS/api-error.log" &

@@ -26,6 +26,28 @@ def test_course_indexer_builds_chapter_tree_from_real_files(client, tmp_path):
     assert result[0].chapters[0].documents[0].preview_text == "# ROS2 基础"
 
 
+def test_course_indexer_uses_metadata_name_and_hides_metadata_file(client, tmp_path):
+    module = importlib.import_module("app.services.course_indexer")
+    course_root = tmp_path / "catalog"
+    chapter = course_root / "robot-safety" / "exp02_robot_remote_control"
+    chapter.mkdir(parents=True)
+    (course_root / "robot-safety" / "course.json").write_text(
+        json.dumps({"name": "机器人与安全", "slug": "robot-safety"}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    (chapter / "metadata.json").write_text(
+        json.dumps({"name": "实验二 机器人远程控制"}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    (chapter / "guide.md").write_text("# 实验二", encoding="utf-8")
+
+    result = module.CourseIndexer(client.app.state.db).index_root(course_root)
+
+    chapter_data = result[0].chapters[0]
+    assert chapter_data.name == "实验二 机器人远程控制"
+    assert [document.filename for document in chapter_data.documents] == ["guide.md"]
+
+
 def test_resolve_under_rejects_path_traversal(tmp_path):
     module = importlib.import_module("app.services.course_indexer")
     root = tmp_path / "course"

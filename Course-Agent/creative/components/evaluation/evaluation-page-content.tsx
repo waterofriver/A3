@@ -20,13 +20,13 @@ export function EvaluationPageContent({
 }) {
   if (!report) {
     return (
-      <section className="mt-6 grid min-h-[440px] place-items-center border border-dashed bg-white text-center">
+      <section className="mt-6 grid min-h-[440px] place-items-center rounded-2xl border border-dashed border-slate-350 border-slate-300 bg-white shadow-sm text-center">
         <div>
-          <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-md bg-[#eef2f7] text-[#66758b]">
+          <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-500 shadow-sm">
             <BarChart3 aria-hidden="true" className="h-5 w-5" />
           </span>
-          <h2 className="mt-4 text-base font-semibold text-[#344258]">评估数据不足</h2>
-          <p className="mt-2 text-sm text-[#748196]">完成题库或实操路径节点后生成评估报告。</p>
+          <h2 className="mt-4 text-base font-bold text-slate-750 text-slate-700">评估数据不足</h2>
+          <p className="mt-2 text-sm text-slate-400">完成题库或实操路径节点后生成评估报告。</p>
         </div>
       </section>
     )
@@ -40,14 +40,14 @@ export function EvaluationPageContent({
       />
 
       <section aria-labelledby="weakness-title">
-        <div className="mb-4 flex items-end justify-between border-b pb-3">
+        <div className="mb-4 flex items-end justify-between border-b border-slate-200 pb-3">
           <div>
-            <p className="text-xs font-semibold text-[#2457d6]">WEAKNESS SIGNALS</p>
-            <h2 className="mt-2 text-lg font-semibold text-[#243149]" id="weakness-title">
+            <p className="text-[10px] font-bold text-primary uppercase tracking-wider">WEAKNESS SIGNALS</p>
+            <h2 className="mt-1 text-lg font-bold tracking-tight text-slate-800" id="weakness-title">
               薄弱知识点统计
             </h2>
           </div>
-          <span className="text-xs text-[#7a8799]">按学习证据出现频次排序</span>
+          <span className="text-xs font-semibold text-slate-400">按学习证据出现频次排序</span>
         </div>
         <WeaknessChart weakPoints={report.weak_points} />
       </section>

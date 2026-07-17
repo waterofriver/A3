@@ -64,8 +64,8 @@ export function QuizPlayer({ resource, userId, submitQuiz }: QuizPlayerProps) {
           (item) => item.question_id === question.id,
         )
         return (
-          <fieldset className="border-b pb-6" key={question.id}>
-            <legend className="text-sm font-semibold leading-6 text-[#344158]">
+          <fieldset className="border-b border-slate-100 pb-6" key={question.id}>
+            <legend className="text-sm font-bold leading-relaxed text-slate-700">
               {index + 1}. {question.prompt}
             </legend>
             {question.question_type === "choice" ? (
@@ -96,17 +96,18 @@ export function QuizPlayer({ resource, userId, submitQuiz }: QuizPlayerProps) {
 
                   return (
                     <label
-                      className="flex min-h-10 cursor-pointer items-center gap-3 rounded-md border px-3 text-sm text-[#526279] has-[:checked]:border-[#2457d6] has-[:checked]:bg-[#edf3ff]"
+                      className="flex min-h-10 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-3 text-sm text-slate-600 transition-all duration-150 hover:bg-slate-50/50 has-[:checked]:border-primary has-[:checked]:bg-blue-50/50"
                       key={option}
                     >
                       <input
                         checked={isChecked}
+                        className="h-4 w-4 rounded border-slate-300 text-primary accent-primary focus:ring-primary"
                         disabled={isSubmitting || Boolean(result)}
                         name={question.id}
                         onChange={handleChange}
                         type={isMulti ? "checkbox" : "radio"}
                       />
-                      {option}
+                      <span className="font-medium text-slate-600">{option}</span>
                     </label>
                   )
                 })}
@@ -117,7 +118,7 @@ export function QuizPlayer({ resource, userId, submitQuiz }: QuizPlayerProps) {
                   {question.prompt}
                 </label>
                 <input
-                  className="h-11 w-full rounded-md border border-[#cdd6e3] px-3 text-sm outline-none focus:border-[#2457d6] focus:ring-4 focus:ring-[#2457d6]/10"
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm text-slate-600 outline-none transition-all duration-200 hover:border-slate-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
                   disabled={isSubmitting || Boolean(result)}
                   id={`answer-${question.id}`}
                   onChange={(event) =>
@@ -135,7 +136,7 @@ export function QuizPlayer({ resource, userId, submitQuiz }: QuizPlayerProps) {
                   {question.prompt}
                 </label>
                 <textarea
-                  className="min-h-28 w-full resize-y rounded-md border border-[#cdd6e3] p-3 font-mono text-sm outline-none focus:border-[#2457d6] focus:ring-4 focus:ring-[#2457d6]/10"
+                  className="min-h-28 w-full resize-y rounded-xl border border-slate-200 bg-slate-50/50 p-3 font-mono text-sm text-slate-600 placeholder-slate-400 outline-none transition-all duration-200 hover:border-slate-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
                   disabled={isSubmitting || Boolean(result)}
                   id={`answer-${question.id}`}
                   onChange={(event) =>
@@ -151,22 +152,22 @@ export function QuizPlayer({ resource, userId, submitQuiz }: QuizPlayerProps) {
 
             {questionResult ? (
               <div
-                className={`mt-4 flex items-start gap-3 rounded-md border p-3 ${
+                className={`mt-4 flex items-start gap-3 rounded-xl border p-3.5 shadow-sm ${
                   questionResult.correct
-                    ? "border-[#c9dda9] bg-[#f4f9ea]"
-                    : "border-[#efc7c2] bg-[#fff7f5]"
+                    ? "border-emerald-100 bg-emerald-50/50 text-emerald-700"
+                    : "border-rose-100 bg-rose-50/50 text-rose-700"
                 }`}
               >
                 {questionResult.correct ? (
-                  <CheckCircle2 aria-hidden="true" className="mt-0.5 h-4 w-4 text-[#648d28]" />
+                  <CheckCircle2 aria-hidden="true" className="mt-0.5 h-4.5 w-4.5 text-emerald-500 shrink-0" />
                 ) : (
-                  <XCircle aria-hidden="true" className="mt-0.5 h-4 w-4 text-[#c7463c]" />
+                  <XCircle aria-hidden="true" className="mt-0.5 h-4.5 w-4.5 text-rose-500 shrink-0" />
                 )}
                 <div>
-                  <p className="text-xs font-semibold text-[#46556c]">
+                  <p className="text-xs font-bold">
                     {questionResult.correct ? "回答正确" : `正确答案：${questionResult.expected_answer}`}
                   </p>
-                  <p className="mt-1 text-xs leading-5 text-[#66758c]">
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500">
                     {questionResult.explanation}
                   </p>
                 </div>
@@ -179,13 +180,13 @@ export function QuizPlayer({ resource, userId, submitQuiz }: QuizPlayerProps) {
       <div className="flex items-center justify-between">
         <div aria-live="polite">
           {result ? (
-            <p className="text-lg font-semibold text-[#2457d6]">得分 {result.score}</p>
+            <p className="text-lg font-bold text-primary">得分 {result.score}</p>
           ) : error ? (
-            <p className="text-sm text-[#c7463c]">{error}</p>
+            <p className="text-sm font-medium text-rose-500">{error}</p>
           ) : null}
         </div>
         <button
-          className="inline-flex h-11 items-center gap-2 rounded-md bg-[#2457d6] px-5 text-sm font-semibold text-white hover:bg-[#1d48b5] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white shadow-md shadow-primary/10 transition-all duration-200 hover:bg-blue-600 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-[0.5px] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none disabled:shadow-none"
           disabled={isSubmitting || Boolean(result)}
           type="submit"
         >

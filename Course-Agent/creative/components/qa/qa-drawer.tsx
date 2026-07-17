@@ -66,13 +66,13 @@ type QaDrawerProps = {
 function QaMediaResult({ media }: { media: QaMedia }) {
   if (!media.url) {
     return (
-      <div className="mt-4 flex min-h-28 items-center gap-3 rounded-md border border-dashed border-[#cbd6e6] bg-[#f7f9fc] p-4">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white text-[#63738b]">
+      <div className="mt-4 flex min-h-28 items-center gap-3 rounded-xl border border-dashed border-slate-350 border-slate-300 bg-slate-50/50 p-4 shadow-sm">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-white text-slate-400 shadow-sm">
           <FileClock aria-hidden="true" className="h-5 w-5" />
         </span>
         <div>
-          <p className="text-sm font-semibold text-[#344258]">等待真实 Agent 返回素材</p>
-          <p className="mt-1 text-xs leading-5 text-[#78869a]">
+          <p className="text-sm font-bold text-slate-700">等待真实 Agent 返回素材</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-400">
             当前演示流未提供媒体地址，文本答案仍可正常查看。
           </p>
         </div>
@@ -90,7 +90,7 @@ function QaMediaResult({ media }: { media: QaMedia }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             alt="答疑图解"
-            className="max-h-[320px] w-full object-contain"
+            className="max-h-[320px] w-full object-contain rounded-lg border border-slate-200"
             src={media.url}
           />
         )}
@@ -265,22 +265,22 @@ export function QaDrawer({
 
   return (
     <Sheet onOpenChange={onOpenChange} open={open}>
-      <SheetContent className="flex w-[560px] flex-col gap-0 p-0 sm:max-w-[560px]">
-        <SheetHeader className="border-b px-6 py-5 pr-14">
+      <SheetContent className="flex w-[560px] flex-col gap-0 p-0 sm:max-w-[560px] border-l border-slate-200">
+        <SheetHeader className="border-b border-slate-100 px-6 py-5 pr-14 bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#17243d] text-[#d8ff72]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-emerald-400 shadow-md">
               <Bot aria-hidden="true" className="h-5 w-5" />
             </span>
             <div className="flex-1">
-              <SheetTitle className="text-base text-[#182132]">智能答疑</SheetTitle>
-              <SheetDescription className="mt-1 text-xs text-[#748196]">
+              <SheetTitle className="text-base font-bold text-slate-800">智能答疑</SheetTitle>
+              <SheetDescription className="mt-0.5 text-xs text-slate-400">
                 当前学生 · {userId}
               </SheetDescription>
             </div>
             {turns.length > 0 ? (
               <button
                 aria-label="清除聊天记录"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-[#9aa7b9] transition hover:bg-[#fef0f0] hover:text-[#c7463c]"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600 active:scale-95"
                 onClick={clearHistory}
                 title="清除聊天记录"
                 type="button"
@@ -291,7 +291,7 @@ export function QaDrawer({
           </div>
         </SheetHeader>
 
-        <div className="border-b px-6 py-4">
+        <div className="border-b border-slate-100 px-6 py-4 bg-white">
           <AgentProgress
             currentAgent={taskState.currentAgent ?? "智能答疑Agent"}
             demoMode={taskState.demoMode}
@@ -300,35 +300,35 @@ export function QaDrawer({
           />
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[#f7f9fc] px-6 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50/40 px-6 py-5">
           {turns.length === 0 ? (
             <div className="flex h-full min-h-48 flex-col items-center justify-center text-center">
-              <span className="flex h-11 w-11 items-center justify-center rounded-md border bg-white text-[#6f7f96]">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 shadow-sm">
                 <Bot aria-hidden="true" className="h-5 w-5" />
               </span>
-              <p className="mt-3 text-sm font-medium text-[#4c5a70]">还没有答疑记录</p>
+              <p className="mt-3 text-sm font-semibold text-slate-500">还没有答疑记录</p>
             </div>
           ) : (
             <div className="space-y-6" aria-live="polite">
               {turns.map((turn) => (
                 <div className="space-y-3" key={turn.id}>
                   <div className="ml-auto flex max-w-[84%] items-start justify-end gap-2">
-                    <p className="rounded-md bg-[#2457d6] px-4 py-3 text-sm leading-6 text-white">
+                    <p className="rounded-2xl bg-primary px-4 py-2.5 text-sm leading-relaxed text-white rounded-tr-none shadow-sm shadow-blue-500/5">
                       {turn.question}
                     </p>
-                    <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#dbe6fb] text-[#2457d6]">
+                    <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-50 border border-blue-100/50 text-primary shadow-sm">
                       <UserRound aria-hidden="true" className="h-3.5 w-3.5" />
                     </span>
                   </div>
                   <div className="flex max-w-[94%] items-start gap-2">
-                    <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#17243d] text-[#d8ff72]">
+                    <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-emerald-400 shadow-sm">
                       <Bot aria-hidden="true" className="h-3.5 w-3.5" />
                     </span>
-                    <div className="min-w-0 flex-1 rounded-md border bg-white p-4 shadow-sm">
+                    <div className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm rounded-tl-none">
                       {turn.answer ? (
                         <MarkdownRenderer markdown={turn.answer} />
                       ) : (
-                        <div className="flex h-8 items-center gap-2 text-sm text-[#748196]" role="status">
+                        <div className="flex h-8 items-center gap-2 text-xs font-semibold text-slate-400" role="status">
                           <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
                           正在组织答案
                         </div>
@@ -342,7 +342,7 @@ export function QaDrawer({
           )}
         </div>
 
-        <form className="border-t bg-white px-6 py-5" onSubmit={handleSubmit}>
+        <form className="border-t border-slate-150 bg-white px-6 py-5 shadow-[0_-4px_12px_rgba(0,0,0,0.02)]" onSubmit={handleSubmit}>
           {error ? (
             <div className="mb-4">
               <ErrorNotice
@@ -356,12 +356,12 @@ export function QaDrawer({
             onValueChange={setAnswerMode}
             value={answerMode}
           />
-          <label className="mt-4 block text-xs font-semibold text-[#4d5c72]" htmlFor="qa-question">
+          <label className="mt-4 block text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="qa-question">
             课程问题
           </label>
           <div className="mt-2 flex items-end gap-2">
             <Textarea
-              className="min-h-20 resize-none border-[#cfd9e8] text-sm"
+              className="min-h-20 resize-none rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-sm text-slate-600 placeholder-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all duration-200"
               disabled={isStreaming}
               id="qa-question"
               maxLength={4000}
@@ -371,7 +371,7 @@ export function QaDrawer({
             />
             <Button
               aria-label="发送问题"
-              className="h-10 w-10 shrink-0 bg-[#2457d6] p-0 hover:bg-[#1d48b5]"
+              className="h-10 w-10 shrink-0 rounded-xl bg-primary p-0 text-white shadow-md shadow-primary/10 transition-all duration-200 hover:bg-blue-600 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-[0.5px] active:translate-y-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none disabled:shadow-none"
               disabled={!question.trim() || isStreaming || !userId}
               title="发送问题"
               type="submit"

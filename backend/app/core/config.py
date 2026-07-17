@@ -1,7 +1,10 @@
 from pathlib import Path
 from typing import Literal
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
@@ -23,7 +26,13 @@ class Settings(BaseSettings):
     sse_poll_interval_ms: int = 250
     sse_heartbeat_seconds: int = 15
     course_root: Path = Path("./data/courses")
-    knowledge_base_root: Path = Path("../knowledge_base")
+    knowledge_base_root: Path = Path("knowledge_base")
+
+    @model_validator(mode="after")
+    def resolve_knowledge_base_root(self) -> "Settings":
+        if not self.knowledge_base_root.is_absolute():
+            self.knowledge_base_root = WORKSPACE_ROOT / self.knowledge_base_root
+        return self
 
     @property
     def allowed_web_origins(self) -> list[str]:

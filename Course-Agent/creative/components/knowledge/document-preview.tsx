@@ -50,12 +50,12 @@ function PreviewBody({ document }: { document: CourseDocument }) {
     return (
       <object
         aria-label={`${document.filename} PDF 预览`}
-        className="h-[620px] w-full border bg-white"
+        className="h-[620px] w-full rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden"
         data={mediaUrl}
         type="application/pdf"
       >
         {document.preview_text ? (
-          <pre className="whitespace-pre-wrap text-sm leading-7 text-[#46556c]">
+          <pre className="whitespace-pre-wrap text-sm leading-relaxed text-slate-600">
             {document.preview_text}
           </pre>
         ) : null}
@@ -64,12 +64,12 @@ function PreviewBody({ document }: { document: CourseDocument }) {
   }
   if (imageTypes.has(document.file_type) && mediaUrl) {
     return (
-      <div className="grid min-h-[480px] place-items-center bg-[#eef2f6] p-4">
+      <div className="grid min-h-[480px] place-items-center bg-slate-50/50 border border-slate-200 rounded-xl p-4 shadow-sm overflow-hidden">
         {/* Course URLs are supplied by the local API at runtime. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt={document.filename}
-          className="max-h-[640px] max-w-full object-contain"
+          className="max-h-[640px] max-w-full object-contain rounded-lg shadow-sm"
           src={mediaUrl}
         />
       </div>
@@ -80,17 +80,17 @@ function PreviewBody({ document }: { document: CourseDocument }) {
   }
   if (document.preview_text) {
     return (
-      <pre className="max-h-[680px] overflow-auto whitespace-pre-wrap border bg-white p-6 text-sm leading-7 text-[#46556c]">
+      <pre className="max-h-[680px] overflow-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50/20 p-6 text-sm leading-relaxed text-slate-600 shadow-sm">
         {document.preview_text}
       </pre>
     )
   }
   return (
-    <div className="grid min-h-[420px] place-items-center border border-dashed bg-white text-center">
+    <div className="grid min-h-[420px] place-items-center rounded-xl border border-dashed border-slate-300 bg-white text-center shadow-sm">
       <div>
-        <FileSearch aria-hidden="true" className="mx-auto h-7 w-7 text-[#98a4b4]" />
-        <p className="mt-3 text-sm font-semibold text-[#4b596e]">暂无可提取的预览内容</p>
-        <p className="mt-1 text-xs text-[#7a8799]">可通过右上角下载按钮查看原始文件。</p>
+        <FileSearch aria-hidden="true" className="mx-auto h-7 w-7 text-slate-400" />
+        <p className="mt-3 text-sm font-bold text-slate-700">暂无可提取的预览内容</p>
+        <p className="mt-1 text-xs text-slate-400">可通过右上角下载按钮查看原始文件。</p>
       </div>
     </div>
   )
@@ -103,19 +103,19 @@ export function DocumentPreview({ document }: { document: CourseDocument }) {
 
   return (
     <article className="min-w-0">
-      <header className="flex min-h-[76px] items-center justify-between gap-5 border-b px-6 py-4">
+      <header className="flex min-h-[76px] items-center justify-between gap-5 border-b border-slate-100 px-6 py-4 bg-slate-50/20">
         <div className="min-w-0">
-          <h2 className="truncate text-base font-semibold text-[#253248]">
+          <h2 className="truncate text-base font-bold tracking-tight text-slate-800">
             {document.filename}
           </h2>
-          <p className="mt-1 text-xs text-[#7b8899]">
+          <p className="mt-1 text-xs font-semibold text-slate-400">
             {document.file_type.toUpperCase()} · {formatBytes(document.size_bytes)} · SHA-256 {document.sha256.slice(0, 10)}
           </p>
         </div>
         {mediaUrl ? (
           <a
             aria-label="下载原始文档"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border text-[#59687e] transition hover:bg-[#edf3ff] hover:text-[#2457d6]"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-primary active:scale-95"
             download={document.filename}
             href={mediaUrl}
             title="下载原始文档"

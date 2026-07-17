@@ -74,20 +74,20 @@ export function ResourceCard({ resource }: { resource: ResourceDetail }) {
   }
 
   return (
-    <article className="rounded-lg border bg-white">
-      <header className="flex items-start justify-between gap-5 border-b px-6 py-5">
+    <article className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <header className="flex items-start justify-between gap-5 border-b border-slate-100 bg-slate-50/50 px-6 py-5">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <NotebookTabs aria-hidden="true" className="h-4 w-4 text-[#2457d6]" />
-            <span className="text-xs font-semibold text-[#2457d6]">{labels[resource.resource_type]}</span>
+            <NotebookTabs aria-hidden="true" className="h-4 w-4 text-primary" />
+            <span className="text-xs font-bold text-primary tracking-wider uppercase">{labels[resource.resource_type]}</span>
           </div>
-          <h2 className="mt-2 text-lg font-semibold text-[#182132]">{resource.title}</h2>
+          <h2 className="mt-2 text-lg font-bold tracking-tight text-slate-800">{resource.title}</h2>
         </div>
         {resource.resource_type === "handout" ? (
           <div className="flex shrink-0 gap-2">
             <button
               aria-label="复制内容"
-              className="flex h-9 w-9 items-center justify-center rounded-md border text-[#526279] hover:bg-[#f4f7fb] hover:text-[#2457d6]"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-primary active:scale-95"
               onClick={copyContent}
               title="复制内容"
               type="button"
@@ -96,7 +96,7 @@ export function ResourceCard({ resource }: { resource: ResourceDetail }) {
             </button>
             <button
               aria-label="下载文档"
-              className="flex h-9 w-9 items-center justify-center rounded-md border text-[#526279] hover:bg-[#f4f7fb] hover:text-[#2457d6]"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-primary active:scale-95"
               onClick={() =>
                 downloadText(`${resource.title}.md`, resource.payload.markdown)
               }

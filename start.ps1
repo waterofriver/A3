@@ -46,6 +46,7 @@ try {
 $ApiPort = Get-AvailablePort $ApiPort
 $WebPort = Get-AvailablePort $WebPort
 $env:NEXT_PUBLIC_API_BASE_URL = "http://127.0.0.1:$ApiPort"
+$env:WEB_ORIGINS = "http://127.0.0.1:$WebPort,http://localhost:$WebPort"
 if (-not $env:NEXT_PUBLIC_AGENT_MODE) {
     $env:NEXT_PUBLIC_AGENT_MODE = if ($env:AGENT_MODE) { $env:AGENT_MODE } else { 'mock' }
 }

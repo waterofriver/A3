@@ -91,19 +91,19 @@ export function GenerationForm({
   }
 
   return (
-    <section className="self-start border border-[#d9e1ec] bg-white" aria-label="资源生成参数">
-      <header className="border-b px-5 py-4">
-        <p className="text-sm font-semibold text-[#27344a]">生成参数</p>
-        <p className="mt-1 text-xs text-[#7a8799]">画像将自动参与 Agent 上下文</p>
+    <section className="self-start rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden" aria-label="资源生成参数">
+      <header className="border-b border-slate-100 bg-slate-50/50 px-5 py-4">
+        <p className="text-sm font-semibold text-slate-700">生成参数</p>
+        <p className="mt-0.5 text-xs text-slate-400">画像将自动参与 Agent 上下文</p>
       </header>
 
       <form className="space-y-6 p-5" onSubmit={handleSubmit}>
         <div>
-          <label className="text-sm font-medium text-[#344158]" htmlFor="course-select">
+          <label className="text-xs font-bold tracking-wider text-slate-400 uppercase" htmlFor="course-select">
             课程
           </label>
           <select
-            className="mt-2 h-11 w-full rounded-md border border-[#cdd6e3] bg-white px-3 text-sm text-[#27344a] outline-none focus:border-[#2457d6] focus:ring-4 focus:ring-[#2457d6]/10"
+            className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm text-slate-600 outline-none transition-all duration-200 hover:border-slate-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
             disabled={!courses.length || isSubmitting}
             id="course-select"
             onChange={(event) => handleCourseChange(event.target.value)}
@@ -118,11 +118,11 @@ export function GenerationForm({
         </div>
 
         <div>
-          <label className="text-sm font-medium text-[#344158]" htmlFor="weak-point">
+          <label className="text-xs font-bold tracking-wider text-slate-400 uppercase" htmlFor="weak-point">
             薄弱知识点
           </label>
           <textarea
-            className="mt-2 min-h-24 w-full resize-none rounded-md border border-[#cdd6e3] px-3 py-2.5 text-sm leading-6 outline-none focus:border-[#2457d6] focus:ring-4 focus:ring-[#2457d6]/10"
+            className="mt-2 min-h-24 w-full resize-none rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm leading-relaxed text-slate-600 placeholder-slate-400 outline-none transition-all duration-200 hover:border-slate-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
             disabled={isSubmitting}
             id="weak-point"
             onChange={(event) => setWeakPoint(event.target.value)}
@@ -133,9 +133,9 @@ export function GenerationForm({
 
         <fieldset>
           <div className="flex items-center justify-between">
-            <legend className="text-sm font-medium text-[#344158]">资源类型</legend>
+            <legend className="text-xs font-bold tracking-wider text-slate-400 uppercase">资源类型</legend>
             <button
-              className="text-xs font-semibold text-[#2457d6] hover:text-[#183fa0]"
+              className="text-xs font-semibold text-primary hover:text-blue-600 active:scale-95 transition-all duration-150"
               disabled={isSubmitting}
               onClick={() => setSelectedTypes([...RESOURCE_TYPES])}
               type="button"
@@ -143,24 +143,24 @@ export function GenerationForm({
               全选资源
             </button>
           </div>
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 space-y-1.5">
             {resourceOptions.map((option) => {
               const Icon = option.icon
               const checked = selectedTypes.includes(option.type)
               return (
                 <label
-                  className="flex h-11 cursor-pointer items-center gap-3 rounded-md border border-transparent px-2 text-sm text-[#526279] transition hover:border-[#dce4ef] hover:bg-[#f8fafc]"
+                  className="flex h-11 cursor-pointer items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/30 px-3 text-sm text-slate-600 transition-all duration-150 hover:border-slate-200 hover:bg-slate-50"
                   key={option.type}
                 >
                   <input
                     checked={checked}
-                    className="h-4 w-4 accent-[#2457d6]"
+                    className="h-4 w-4 rounded border-slate-300 text-primary accent-primary focus:ring-primary"
                     disabled={isSubmitting}
                     onChange={(event) => toggleType(option.type, event.target.checked)}
                     type="checkbox"
                   />
-                  <Icon aria-hidden="true" className="h-4 w-4 text-[#708096]" />
-                  {option.label}
+                  <Icon aria-hidden="true" className="h-4 w-4 text-slate-400" />
+                  <span className="font-medium text-slate-600">{option.label}</span>
                 </label>
               )
             })}
@@ -169,12 +169,12 @@ export function GenerationForm({
 
         <div className="min-h-5" aria-live="polite">
           {validationError ? (
-            <p className="text-xs text-[#c7463c]">{validationError}</p>
+            <p className="text-xs font-medium text-rose-500">{validationError}</p>
           ) : null}
         </div>
 
         <button
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#2457d6] px-4 text-sm font-semibold text-white transition hover:bg-[#1d48b5] disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white shadow-md shadow-primary/10 transition-all duration-200 hover:bg-blue-600 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-[0.5px] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none disabled:shadow-none"
           disabled={isSubmitting || !courses.length}
           type="submit"
         >

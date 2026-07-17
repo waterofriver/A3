@@ -3,7 +3,6 @@ from fastapi import Request
 
 from app.agents.base import AgentProvider
 from app.agents.mock import MockAgentProvider
-from app.agents.real import RealAgentProvider
 from app.agents.remote import FallbackAgentProvider, RemoteAgentProvider
 from app.core.config import Settings
 from app.core.errors import AppError
@@ -16,6 +15,8 @@ def create_agent_provider(
     db=None,
 ) -> AgentProvider:
     if settings.agent_mode == "local":
+        from app.agents.real import RealAgentProvider
+
         return RealAgentProvider(db=db)
     if settings.agent_mode == "mock":
         return MockAgentProvider(settings)

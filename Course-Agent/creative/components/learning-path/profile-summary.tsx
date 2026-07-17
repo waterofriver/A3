@@ -11,15 +11,15 @@ const fields: { key: keyof StudentProfile; label: string }[] = [
 
 export function ProfileSummary({ profile }: { profile: StudentProfile | null }) {
   return (
-    <section aria-label="学生画像摘要" className="border-y bg-white">
-      <div className="grid grid-cols-6 divide-x">
+    <section aria-label="学生画像摘要" className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="grid grid-cols-6 divide-x divide-slate-100">
         {fields.map((field) => {
           const value = profile?.[field.key]
           const text = Array.isArray(value) ? value.join("、") : value || "待采集"
           return (
-            <div className="min-w-0 px-4 py-4" key={field.key}>
-              <p className="text-[11px] text-[#7a8799]">{field.label}</p>
-              <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#46556c]">{text}</p>
+            <div className="min-w-0 px-4 py-3.5 bg-white transition hover:bg-slate-50/50" key={field.key}>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{field.label}</p>
+              <p className="mt-1 line-clamp-2 text-xs font-semibold leading-relaxed text-slate-600">{text}</p>
             </div>
           )
         })}

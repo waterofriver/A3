@@ -26,13 +26,13 @@ export function KnowledgePageContent({ course }: { course: CourseBase }) {
 
   if (!course.content_ready || documents.length === 0) {
     return (
-      <section className="mt-6 grid min-h-[480px] place-items-center border border-dashed bg-white text-center">
+      <section className="mt-6 grid min-h-[480px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white shadow-sm text-center">
         <div>
-          <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-md bg-[#eef2f7] text-[#66758b]">
+          <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-500 shadow-sm">
             <DatabaseZap aria-hidden="true" className="h-5 w-5" />
           </span>
-          <h2 className="mt-4 text-base font-semibold text-[#344258]">课程资料未同步</h2>
-          <p className="mt-2 text-sm text-[#748196]">挂载真实课程文件后即可在此只读浏览。</p>
+          <h2 className="mt-4 text-base font-bold text-slate-700">课程资料未同步</h2>
+          <p className="mt-2 text-sm text-slate-400">挂载真实课程文件后即可在此只读浏览。</p>
         </div>
       </section>
     )
@@ -42,11 +42,11 @@ export function KnowledgePageContent({ course }: { course: CourseBase }) {
     documents.find((document) => document.id === selectedId) ?? documents[0]
 
   return (
-    <section className="mt-6 grid min-h-[680px] grid-cols-[320px_minmax(0,1fr)] overflow-hidden border bg-white">
-      <div className="border-r bg-[#fbfcfe]">
-        <div className="flex h-[58px] items-center justify-between border-b px-4">
-          <h2 className="text-sm font-semibold text-[#344258]">课程目录</h2>
-          <span className="text-xs tabular-nums text-[#8a97a8]">{documents.length} 份文档</span>
+    <section className="mt-6 grid min-h-[680px] grid-cols-[320px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="border-r border-slate-200 bg-slate-50/40">
+        <div className="flex h-[58px] items-center justify-between border-b border-slate-150 px-4 bg-slate-50/60">
+          <h2 className="text-sm font-bold text-slate-700">课程目录</h2>
+          <span className="text-xs font-semibold tabular-nums text-slate-400">{documents.length} 份文档</span>
         </div>
         <KnowledgeTree
           chapters={course.chapters}

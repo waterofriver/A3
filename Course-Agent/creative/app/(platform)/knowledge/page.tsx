@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { LibraryBig } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { KnowledgePageContent } from "@/components/knowledge/knowledge-page-content"
 import { ErrorNotice } from "@/components/shared/error-notice"
@@ -14,12 +14,15 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { apiFetch } from "@/lib/api/client"
+import {
+  getRememberedCourse,
+  rememberSelectedCourse,
+  selectInitialCourse,
+} from "@/lib/course-selection"
 import type { components } from "@/lib/api/generated"
 
 type CourseSummary = components["schemas"]["CourseSummary"]
 type CourseBase = components["schemas"]["CourseBaseData"]
-
-const SELECTED_COURSE_KEY = "zhixue_selected_course"
 
 export default function KnowledgePage() {
   const [courseName, setCourseName] = useState("")
@@ -29,12 +32,17 @@ export default function KnowledgePage() {
   })
   const courses = useMemo(() => coursesQuery.data ?? [], [coursesQuery.data])
 
+  const selectCourse = useCallback((name: string) => {
+    setCourseName(name)
+    rememberSelectedCourse(name)
+  }, [])
+
   useEffect(() => {
     if (courseName || !courses.length) return
-    const remembered = window.localStorage.getItem(SELECTED_COURSE_KEY)
-    const selected = courses.find((course) => course.name === remembered) ?? courses[0]
-    setCourseName(selected.name)
-  }, [courseName, courses])
+    const remembered = getRememberedCourse()
+    const selected = selectInitialCourse(courses, remembered)
+    if (selected) selectCourse(selected.name)
+  }, [courseName, courses, selectCourse])
 
   const selectedSummary = courses.find((course) => course.name === courseName)
   const courseQuery = useQuery({
@@ -51,11 +59,6 @@ export default function KnowledgePage() {
       : { ...selectedSummary, chapters: [] }
     : undefined
   const error = coursesQuery.error ?? courseQuery.error
-
-  const selectCourse = (name: string) => {
-    setCourseName(name)
-    window.localStorage.setItem(SELECTED_COURSE_KEY, name)
-  }
 
   return (
     <div className="mx-auto w-full max-w-[1480px]">

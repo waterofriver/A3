@@ -1,6 +1,7 @@
 "use client"
 
 import { FileCode2, FileText, Image as ImageIcon, PlaySquare } from "lucide-react"
+import { useEffect, useState } from "react"
 
 import {
   Accordion,
@@ -48,16 +49,26 @@ export function KnowledgeTree({
   onSelect: (documentId: string) => void
   selectedId?: string
 }) {
+  const [openChapter, setOpenChapter] = useState(chapters[0]?.path ?? "")
+
+  useEffect(() => {
+    if (!chapters.some((chapter) => chapter.path === openChapter)) {
+      setOpenChapter(chapters[0]?.path ?? "")
+    }
+  }, [chapters, openChapter])
+
   return (
     <nav aria-label="课程章节" className="h-full overflow-y-auto px-4 py-3">
       <Accordion
         className="w-full"
-        defaultValue={chapters.map((chapter) => chapter.path)}
-        type="multiple"
+        collapsible
+        onValueChange={setOpenChapter}
+        type="single"
+        value={openChapter}
       >
         {chapters.map((chapter) => (
-          <AccordionItem key={chapter.path} value={chapter.path}>
-            <AccordionTrigger className="text-left text-sm font-semibold text-[#344258] hover:no-underline">
+          <AccordionItem key={chapter.path} value={chapter.path} className="border-b border-slate-100">
+            <AccordionTrigger className="text-left text-sm font-bold text-slate-700 hover:text-primary hover:no-underline py-3">
               <span className="min-w-0 truncate">{chapter.name}</span>
             </AccordionTrigger>
             <AccordionContent className="space-y-1 pb-3">
@@ -68,16 +79,16 @@ export function KnowledgeTree({
                   <button
                     aria-current={isSelected ? "page" : undefined}
                     className={cn(
-                      "flex min-h-10 w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs text-[#66758b] transition hover:bg-[#f0f4fb] hover:text-[#2457d6]",
-                      isSelected && "bg-[#edf3ff] font-semibold text-[#2457d6]",
+                      "flex min-h-10 w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-slate-500 transition-all duration-150 hover:bg-slate-100/70 hover:text-primary active:scale-[0.98]",
+                      isSelected && "bg-blue-50/60 font-bold text-primary shadow-sm shadow-blue-500/5",
                     )}
                     key={document.id}
                     onClick={() => onSelect(document.id)}
                     type="button"
                   >
-                    <Icon aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                    <Icon aria-hidden="true" className={cn("h-3.5 w-3.5 shrink-0", isSelected ? "text-primary" : "text-slate-400")} />
                     <span className="min-w-0 flex-1 truncate">{document.filename}</span>
-                    <span className="shrink-0 uppercase text-[10px] text-[#99a5b5]">
+                    <span className="shrink-0 uppercase text-[9px] font-bold text-slate-400">
                       {document.file_type}
                     </span>
                   </button>

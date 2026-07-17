@@ -61,23 +61,23 @@ export function ErrorNotice({ error, onRetry }: ErrorNoticeProps) {
 
   return (
     <div
-      className="flex items-start gap-3 rounded-md border border-[#efc7c2] bg-[#fff7f5] p-4"
+      className="flex items-start gap-3 rounded-xl border border-rose-100 bg-rose-50/50 p-4 shadow-sm"
       role="alert"
     >
-      <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 text-[#c7463c]" />
+      <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 text-rose-550 text-rose-500 shrink-0" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-[#8d3029]">{meta.title}</p>
-        <p className="mt-1 text-sm leading-6 text-[#74514e]">{message}</p>
+        <p className="text-sm font-bold text-rose-700">{meta.title}</p>
+        <p className="mt-1 text-sm font-medium leading-relaxed text-rose-600">{message}</p>
         {!canRetry || meta.guidance !== meta.retryLabel ? (
-          <p className="mt-1 text-xs font-medium text-[#9a5f59]">{meta.guidance}</p>
+          <p className="mt-1 text-xs font-semibold text-rose-500">{meta.guidance}</p>
         ) : null}
         {error instanceof ApiError && error.traceId ? (
-          <p className="mt-2 text-xs text-[#9a6f6a]">追踪号：{error.traceId}</p>
+          <p className="mt-2 text-xs font-semibold text-rose-400">追踪号：{error.traceId}</p>
         ) : null}
       </div>
       {canRetry ? (
         <button
-          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md border border-[#e4aaa3] bg-white px-3 text-sm font-medium text-[#9f3b32] transition hover:bg-[#fff0ed]"
+          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl border border-rose-200 bg-white px-3 text-sm font-semibold text-rose-600 shadow-sm transition-all duration-150 hover:bg-rose-50 hover:border-rose-300 active:scale-95"
           onClick={onRetry}
           type="button"
         >
