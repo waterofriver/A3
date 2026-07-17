@@ -8,6 +8,7 @@ import { MediaCard } from "@/components/resources/media-card"
 import { MindMapViewer } from "@/components/resources/mind-map-viewer"
 import { QuizPlayer } from "@/components/resources/quiz-player"
 import { VideoPlayer } from "@/components/resources/video-player"
+import { resolveApiUrl } from "@/lib/api/client"
 import type { ResourceDetail, ResourceType } from "@/lib/api/resource-types"
 import { getUserId } from "@/lib/session/user-session"
 
@@ -42,8 +43,8 @@ function ResourceBody({ resource }: { resource: ResourceDetail }) {
   }
   if (resource.resource_type === "video") {
     return resource.media_url ? (
-      <MediaCard mediaUrl={resource.media_url}>
-        <VideoPlayer poster={resource.payload.poster_url} src={resource.media_url} />
+      <MediaCard mediaUrl={resolveApiUrl(resource.media_url)}>
+        <VideoPlayer poster={resource.payload.poster_url} src={resolveApiUrl(resource.media_url)} />
       </MediaCard>
     ) : (
       <div className="grid min-h-[280px] place-items-center border border-dashed border-[#cbd5e3] bg-[#f8fafc] text-center">

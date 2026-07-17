@@ -48,15 +48,16 @@ const confirmProfileWithApi = (userId: string) =>
   })
 
 function isProfileComplete(profile: StudentProfile) {
+  // 与后端 _profile_ready() 保持一致：6 维中至少 4 维有数据
   const collected = (value: string) => Boolean(value.trim()) && value !== "待采集"
-  return (
-    collected(profile.knowledge_foundation) &&
-    collected(profile.cognitive_style) &&
-    Boolean(profile.weak_points?.length) &&
-    collected(profile.learning_pace) &&
-    Boolean(profile.content_preferences?.length) &&
-    collected(profile.short_term_goal)
-  )
+  let filled = 0
+  if (collected(profile.knowledge_foundation)) filled += 1
+  if (collected(profile.cognitive_style)) filled += 1
+  if (profile.weak_points?.length) filled += 1
+  if (collected(profile.learning_pace)) filled += 1
+  if (profile.content_preferences?.length) filled += 1
+  if (collected(profile.short_term_goal)) filled += 1
+  return filled >= 4
 }
 
 export function ProfilePage({
@@ -149,6 +150,12 @@ export function ProfilePage({
                   : message,
               ),
             )
+          }
+          if (gatewayEvent.event === "task.completed") {
+            // 后端可能已自动确认画像（快捷确认/4维满足），刷新 user info
+            void queryClient.invalidateQueries({
+              queryKey: queryKeys.user(userId),
+            })
           }
           if (gatewayEvent.event === "task.failed" && gatewayEvent.error) {
             setError(

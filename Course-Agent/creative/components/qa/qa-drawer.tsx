@@ -5,9 +5,10 @@ import {
   FileClock,
   LoaderCircle,
   Send,
+  Trash2,
   UserRound,
 } from "lucide-react"
-import { FormEvent, useEffect, useRef, useState } from "react"
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react"
 
 import {
   AnswerModeControl,
@@ -27,7 +28,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
-import { ApiError } from "@/lib/api/client"
+import { ApiError, resolveApiUrl } from "@/lib/api/client"
 import { postEventStream } from "@/lib/sse/post-event-stream"
 import {
   type GatewayEvent,
@@ -115,6 +116,64 @@ export function QaDrawer({
 
   useEffect(() => () => abortRef.current?.abort(), [])
 
+  // ── 本地历史记录持久化 ──
+  const storageKey = `zhixue-qa-history-${userId}`
+  const MAX_TURNS = 50
+
+  // 打开抽屉时从 localStorage 恢复历史
+  useEffect(() => {
+    if (!open || !userId) return
+    try {
+      const raw = localStorage.getItem(storageKey)
+      if (raw) {
+        const parsed: QaTurn[] = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTurns(parsed.slice(-MAX_TURNS))
+        }
+      }
+    } catch {
+      // localStorage 数据损坏时静默忽略
+    }
+  }, [open, userId, storageKey])
+
+  // 流式结束后保存历史到 localStorage
+  const persistTurns = useCallback(
+    (currentTurns: QaTurn[]) => {
+      if (!userId || currentTurns.length === 0) return
+      try {
+        const trimmed = currentTurns.slice(-MAX_TURNS)
+        localStorage.setItem(storageKey, JSON.stringify(trimmed))
+      } catch {
+        // localStorage 满了或不可用时静默忽略
+      }
+    },
+    [userId, storageKey],
+  )
+
+  // 清除历史记录
+  const clearHistory = () => {
+    setTurns([])
+    try {
+      localStorage.removeItem(storageKey)
+    } catch {
+      // ignore
+    }
+  }
+
+  // 流式传输结束时自动保存
+  const prevStreamingRef = useRef(isStreaming)
+  useEffect(() => {
+    const wasStreaming = prevStreamingRef.current
+    prevStreamingRef.current = isStreaming
+    if (wasStreaming && !isStreaming) {
+      // 流式传输刚刚结束，用最新的 turns 做持久化
+      setTurns((current) => {
+        persistTurns(current)
+        return current
+      })
+    }
+  }, [isStreaming, persistTurns])
+
   const submitQuestion = async () => {
     const trimmedQuestion = question.trim()
     if (!trimmedQuestion || isStreaming) return
@@ -164,7 +223,9 @@ export function QaDrawer({
                       ...turn,
                       media: {
                         mode: submittedMode,
-                        url: gatewayEvent.media_url ?? null,
+                        url: gatewayEvent.media_url
+                          ? resolveApiUrl(gatewayEvent.media_url)
+                          : null,
                       },
                     }
                   : turn,
@@ -210,12 +271,23 @@ export function QaDrawer({
             <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#17243d] text-[#d8ff72]">
               <Bot aria-hidden="true" className="h-5 w-5" />
             </span>
-            <div>
+            <div className="flex-1">
               <SheetTitle className="text-base text-[#182132]">智能答疑</SheetTitle>
               <SheetDescription className="mt-1 text-xs text-[#748196]">
                 当前学生 · {userId}
               </SheetDescription>
             </div>
+            {turns.length > 0 ? (
+              <button
+                aria-label="清除聊天记录"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-[#9aa7b9] transition hover:bg-[#fef0f0] hover:text-[#c7463c]"
+                onClick={clearHistory}
+                title="清除聊天记录"
+                type="button"
+              >
+                <Trash2 aria-hidden="true" className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
         </SheetHeader>
 

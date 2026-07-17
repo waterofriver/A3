@@ -727,20 +727,94 @@ class RealAgentProvider(AgentProvider):
             current_agent="答疑Agent", progress=10, demo_mode=False,
         )
 
-        system_prompt = "你是一位知识渊博的学习导师。请用中文回答学生的问题。解释清晰易懂，适当举例说明。"
+        # 根据回答模式构建不同的 system prompt
+        if answer_mode == "image":
+            system_prompt = (
+                "你是一位知识渊博的学习导师。请用中文回答学生的问题。\n\n"
+                "要求：\n"
+                "1. 先给出清晰的文字解释（200-400字），分点说明核心概念\n"
+                "2. 然后生成一个 **Mermaid 图解**，用 ```mermaid 代码块包裹，"
+                "根据问题类型选择合适的图表类型：\n"
+                "   - 流程/步骤类 → flowchart TD 或 graph TD\n"
+                "   - 交互/通信类 → sequenceDiagram\n"
+                "   - 概念关系类 → graph TD 或 mindmap\n"
+                "3. 图解应使用中文标签，节点数控制在 5-12 个\n"
+                "4. 最后用一两句话总结图解要点\n\n"
+                "重要：图解是你回答的核心部分，请确保 Mermaid 语法正确、"
+                "节点标签有意义、图表能够独立传达知识结构。"
+            )
+        elif answer_mode == "video":
+            # ── 优先从课程数据查找真实视频文件 ──
+            from app.agents.mock import _find_course_video
+            from pathlib import Path as _Path
+
+            _course_root = (_Path(__file__).resolve().parent.parent.parent / "data" / "courses")
+            video_url, video_topic, video_intro = _find_course_video(_course_root, question)
+
+            if video_url is not None:
+                # 有真实视频：发送简短文字介绍 + 视频 media.ready
+                system_prompt = (
+                    "你是一位知识渊博的学习导师。请用中文回答学生的问题。\n\n"
+                    f"注意：系统已为学生匹配了关于「{video_topic}」的实验演示视频，"
+                    "请用 3-5 句话简要介绍这个知识点的核心概念和学习目标，"
+                    "引导学生观看下方的演示视频。不需要生成脚本或图解。"
+                )
+                self._qa_video_url = video_url
+                self._qa_video_topic = video_topic
+                self._qa_video_intro = video_intro
+            else:
+                self._qa_video_url = None
+                system_prompt = (
+                    "你是一位知识渊博的学习导师。请用中文回答学生的问题。\n\n"
+                    "请以「短视频讲解脚本」的形式组织回答：\n"
+                    "1. 开场引入（30秒口播文案）\n"
+                    "2. 核心概念讲解（分 3-5 个要点，每个要点标注画面描述）\n"
+                    "3. 总结回顾\n\n"
+                    "格式示例：\n"
+                    "【开场】大家好，今天我们来理解...\n"
+                    "【要点1】...  [画面：展示...]\n"
+                    "【要点2】...  [画面：演示...]\n"
+                    "【总结】...\n\n"
+                    "请确保脚本逻辑清晰，适合制作 3-5 分钟的讲解视频。"
+                )
+        else:
+            system_prompt = (
+                "你是一位知识渊博的学习导师。请用中文回答学生的问题。"
+                "解释清晰易懂，适当举例说明。如果问题涉及流程或架构，"
+                "建议用分步骤或分层级的方式组织回答。"
+            )
 
         loop = asyncio.get_running_loop()
         response = await loop.run_in_executor(
             None,
-            lambda: get_client().chat(user_message=question, system_prompt=system_prompt, temperature=0.5),
+            lambda: get_client().chat(
+                user_message=question,
+                system_prompt=system_prompt,
+                temperature=0.5,
+            ),
         )
 
         if response.success:
             yield GatewayEvent(
                 event="content.delta", task_id=task_id, trace_id=trace_id,
-                current_agent="答疑Agent", progress=90, content=response.content,
+                current_agent="答疑Agent", progress=90,
+                content=response.content,
                 demo_mode=False,
             )
+            # 视频模式：有真实视频时推送 media.ready
+            if getattr(self, "_qa_video_url", None) is not None:
+                yield GatewayEvent(
+                    event="media.ready",
+                    task_id=task_id,
+                    trace_id=trace_id,
+                    current_agent="答疑Agent",
+                    progress=95,
+                    resource_type="video",
+                    media_url=self._qa_video_url,
+                    content=f"实验演示视频：{getattr(self, '_qa_video_topic', '')}",
+                    demo_mode=False,
+                )
+                self._qa_video_url = None
             yield GatewayEvent(
                 event="task.completed", task_id=task_id, trace_id=trace_id,
                 current_agent="答疑Agent", progress=100, finish_flag=True,
@@ -763,6 +837,8 @@ class RealAgentProvider(AgentProvider):
         course_name: str,
         evidence: EvaluationEvidence,
     ) -> EvaluationDraft:
+        from app.agents.mock import _conceptualize_weak_point
+
         # ── 理论知识：题库答题平均分 ──
         theory_score = 0
         if evidence.attempts:
@@ -781,38 +857,59 @@ class RealAgentProvider(AgentProvider):
             theory_score = 50
             practice_score = 50
 
-        # ── 汇总所有答题中的错误知识点 ──
+        # ── 薄弱点归纳：原始错题文本 → 概念型知识点 ──
         wp_freq: dict[str, int] = {}
+        concept_reasons: dict[str, str] = {}
         for attempt in evidence.attempts:
             for point in (attempt.incorrect_points or []):
-                wp_freq[point] = wp_freq.get(point, 0) + 1
+                concept, reason = _conceptualize_weak_point(point)
+                wp_freq[concept] = wp_freq.get(concept, 0) + 1
+                concept_reasons.setdefault(concept, reason)
         for wp in (evidence.question_weak_points or []):
-            wp_freq[wp] = wp_freq.get(wp, 0) + 1
+            concept, reason = _conceptualize_weak_point(wp)
+            wp_freq[concept] = wp_freq.get(concept, 0) + 1
+            concept_reasons.setdefault(concept, reason)
 
         weak_points = [
             EvaluationWeakPoint(name=name, frequency=freq)
             for name, freq in sorted(wp_freq.items(), key=lambda x: -x[1])
         ]
 
-        # ── 根据所有薄弱点生成路径调整建议 ──
+        # ── 根据薄弱点频率生成路径调整建议 ──
         recommended_changes: list[EvaluationRecommendedChange] = []
         for wp in weak_points:
+            reason_detail = concept_reasons.get(
+                wp.name,
+                f"该薄弱项在学习证据中出现 {wp.frequency} 次。",
+            )
             if wp.frequency >= 5:
                 level = "核心"
-                advice = f"严重薄弱（错{wp.frequency}次），必须重新学习本知识点讲义和思维导图，完成配套题库后再测试"
+                advice = (
+                    f"严重薄弱（出现 {wp.frequency} 次），必须重新学习本知识点讲义和思维导图，"
+                    f"完成配套题库后再测试。{reason_detail}"
+                )
             elif wp.frequency >= 3:
                 level = "核心"
-                advice = f"高频错误（错{wp.frequency}次），建议返回本知识点，重读讲义并完成专项练习"
+                advice = (
+                    f"高频错误（出现 {wp.frequency} 次），建议返回本知识点，"
+                    f"重读讲义并完成专项练习。{reason_detail}"
+                )
             elif wp.frequency >= 2:
                 level = "基础"
-                advice = f"中频错误（错{wp.frequency}次），建议回顾思维导图，针对此薄弱点做巩固练习"
+                advice = (
+                    f"中频错误（出现 {wp.frequency} 次），建议回顾思维导图，"
+                    f"针对此薄弱点做巩固练习。{reason_detail}"
+                )
             else:
                 level = "入门"
-                advice = f"偶发错误（错{wp.frequency}次），建议快速浏览讲义中此知识点的常见误区"
+                advice = (
+                    f"偶发错误（出现 {wp.frequency} 次），建议快速浏览讲义中"
+                    f"此知识点的常见误区。{reason_detail}"
+                )
 
             recommended_changes.append(
                 EvaluationRecommendedChange(
-                    stage_name=wp.name,
+                    stage_name=f"{wp.name} 强化训练",
                     difficulty=level,
                     reason=advice,
                     resource_id=None,

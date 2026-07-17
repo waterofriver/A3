@@ -3,6 +3,7 @@ import rehypeHighlight from "rehype-highlight"
 import remarkGfm from "remark-gfm"
 
 import { CodeBlock } from "@/components/resources/code-block"
+import { MermaidDiagram } from "@/components/resources/mermaid-diagram"
 
 export function MarkdownRenderer({ markdown }: { markdown: string }) {
   return (
@@ -15,11 +16,13 @@ export function MarkdownRenderer({ markdown }: { markdown: string }) {
           code: ({ children, className }) => {
             const language = /language-(\w+)/.exec(className ?? "")?.[1]
             const code = String(children).replace(/\n$/, "")
-            return language ? (
-              <CodeBlock code={code} language={language} />
-            ) : (
-              <code className={className}>{children}</code>
-            )
+            if (!language) {
+              return <code className={className}>{children}</code>
+            }
+            if (language === "mermaid") {
+              return <MermaidDiagram code={code} />
+            }
+            return <CodeBlock code={code} language={language} />
           },
         }}
       >
