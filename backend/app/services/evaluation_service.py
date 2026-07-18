@@ -131,6 +131,10 @@ class EvaluationService:
                 evidence_hash=evidence_hash,
                 draft=draft,
             )
+            # 把评估出的薄弱点同步回学生画像
+            self._sync_weak_points_to_profile(
+                session, user_id, draft.weak_points
+            )
             return report_data(report)
 
     def apply(self, report_id: str) -> LearningPathData:
@@ -200,6 +204,34 @@ class EvaluationService:
             report.applied_path_id = updated.id
             session.flush()
             return path_data(updated, updated_nodes)
+
+    @staticmethod
+    def _sync_weak_points_to_profile(
+        session, user_id: str, eval_weak_points: list
+    ) -> None:
+        """把评估薄弱点名称合并到学生画像的 weak_points 字段。"""
+        from app.repositories.profiles import ProfileRepository
+        from app.schemas.profile import StudentProfileData
+
+        profile_record = ProfileRepository(session).get(user_id)
+        if profile_record is None:
+            return
+
+        profile_data = dict(profile_record.profile_data or {})
+        existing: list[str] = list(profile_data.get("weak_points", []) or [])
+
+        for wp in eval_weak_points:
+            name = wp.name if hasattr(wp, "name") else str(wp)
+            if name and name not in existing:
+                existing.append(name)
+
+        profile_data["weak_points"] = existing
+        # 用 upsert 写回（不改变 confirmed_at）
+        ProfileRepository(session).upsert(
+            user_id,
+            profile_data,
+            revision=profile_record.revision + 1,
+        )
 
     @staticmethod
     def _not_ready() -> None:
