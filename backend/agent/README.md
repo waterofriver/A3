@@ -1,340 +1,261 @@
-# 智学引擎 — Agent 使用手册
+# 智学引擎本地 Agent 使用手册
 
-> 本文档面向**前后端开发者**，介绍 Agent 引擎的组成、功能和集成方式。
-> 你不需要修改 Agent 代码，只需按本文档完成配置和对接。
+`backend/agent/` 是智学引擎的本地多智能体实现，包含学习画像、意图调度、路径规划和课程资源生成等八个角色模块。它通过 DeepSeek 兼容 API 完成模型推理，并由 `backend/app/agents/real.py` 中的 `RealAgentProvider` 适配到 FastAPI 网关契约。当前 Provider 直接调用其中七个角色；`Supervisor` 尚未接入活动 API 调用链。
 
----
+本目录面向 Agent 开发者和网关集成者。系统普通运行、API 和部署说明见仓库根 [README](../../README.md) 与 [接口文档](../../docs/api-integration.md)。
 
-## 一、Agent 引擎概览
+## 与活动系统的关系
 
-Agent 引擎位于 `A3/backend/agent/`，是智学引擎的 AI 核心。它基于 DeepSeek API 驱动，对外暴露 Python 接口，由后端 FastAPI 网关调用。
+FastAPI 网关支持三种显式模式：
 
-```
-agent/
-├── config.py                  ← DeepSeek API 配置（.env）
-├── requirements.txt           ← Python 依赖
-├── models/schemas.py          ← 统一数据模型（所有 Agent 共享）
-├── utils/
-│   ├── llm_client.py          ← DeepSeek API 封装（同步/异步/重试）
-│   ├── json_parser.py         ← LLM 输出 → 结构化 JSON
-│   ├── dag_loader.py          ← 知识 DAG 加载
-│   └── material_loader.py     ← 课件材料提取（PDF/DOCX/PPTX/TXT）
-├── profile_agent/             ← Agent 1: 画像构建
-├── planner/                   ← Agent 2: 学习路径规划
-├── supervisor/                ← Agent 3: 会话调度
-├── doc_agent/                 ← Agent 4: 讲义文档生成
-├── mindmap_agent/             ← Agent 5: 思维导图生成
-├── quiz_agent/                ← Agent 6: 练习题生成
-├── video_agent/               ← Agent 7: 视频推送 + 导览脚本
-└── reference_agent/           ← Agent 8: 拓展阅读推荐
-```
-
----
-
-## 二、八个 Agent 功能一览
-
-### Agent 1：ProfileAgent（画像构建）
-
-| 项目 | 说明 |
-|---|---|
-| 功能 | 从学生自由对话中提取 6 维度学习画像 |
-| 输入 | 学生聊天文本 + 已有画像（增量更新） |
-| 输出 | `StudentProfile`（知识基础、认知风格、学习目标、薄弱环节、学习节奏、兴趣偏好） |
-| 调用方 | Supervisor → 后端 `/api/chat/profile` |
-| 前端展示 | [画像采集页](A3/Course-Agent/creative/app/(platform)/profile/page.tsx) — 聊天式对话界面 |
-
-### Agent 2：PlannerAgent（学习路径规划）
-
-| 项目 | 说明 |
-|---|---|
-| 功能 | 根据学生画像 + 知识 DAG，Kahn 拓扑排序 + LLM 生成个性化学习路径 |
-| 输入 | `StudentProfile` + `KnowledgeDAG`（从 A3/knowledge_base/ 加载） |
-| 输出 | `LearningPath`（有序知识点列表，每项含学习深度/时长/资源类型推荐） |
-| 调用方 | Supervisor → 后端 `/api/path/get` |
-| 前端展示 | [学习路径页](A3/Course-Agent/creative/app/(platform)/path/page.tsx) — ReactFlow 可视化 |
-
-### Agent 3：Supervisor（会话调度）
-
-| 项目 | 说明 |
-|---|---|
-| 功能 | 意图分类 → Agent 分发 → SessionState 管理 |
-| 输入 | 用户文本 + `SessionState` |
-| 输出 | `SupervisorResult`（意图标签 + 用户回复 + 更新后的 SessionState） |
-| 调用方 | 后端 Profile/Chat 路由 |
-| 支持意图 | extract_profile / plan_path / answer_question / generate_resource / evaluate / chitchat |
-
-### Agent 4：DocAgent（讲义文档生成）
-
-| 项目 | 说明 |
-|---|---|
-| 功能 | 基于课件材料和画像生成结构化讲义文档 |
-| 输入 | `KnowledgePoint` + `StudentProfile` + 课件文本（MaterialLoader） |
-| 输出 | `ResourceOutput { DocContent }`（3-6 章节，每章含 heading/body_markdown/key_points） |
-| 调用方 | 后端资源生成流 `/api/resource/generate`（`handout` 类型） |
-| 前端展示 | [资源工作台](A3/Course-Agent/creative/app/(platform)/workspace/page.tsx) — Markdown 渲染 |
-
-**后端对接要点**：DocAgent 返回的 `content.sections` 是章节列表，后端需要拼接为单个 Markdown 字符串存入 `payload.markdown`，前端用 `react-markdown` 渲染。
-
-### Agent 5：MindMapAgent（思维导图生成）
-
-| 项目 | 说明 |
-|---|---|
-| 功能 | 基于课件材料生成结构化思维导图（含 Mermaid 语法） |
-| 输入 | `KnowledgePoint` + `StudentProfile` + 课件文本 |
-| 输出 | `ResourceOutput { MindMapContent }`（root_topic + mermaid_code + nodes 树） |
-| 调用方 | 后端资源生成流 `/api/resource/generate`（`mindmap` 类型） |
-| 前端展示 | [资源工作台](A3/Course-Agent/creative/app/(platform)/workspace/page.tsx) — Mermaid 渲染或自定义组件 |
-
-**后端对接要点**：`content.nodes` 是 `[{id, label, parent_id, children}]` 格式，可直接传给前端的思维导图组件。`content.mermaid_code` 是一段 Mermaid mindmap 语法的字符串，可粘贴到 [mermaid.live](https://mermaid.live) 预览。
-
-### Agent 6：QuizAgent（练习题生成）
-
-| 项目 | 说明 |
-|---|---|
-| 功能 | 基于课件材料和画像生成个性化练习题（单选/多选/判断/简答） |
-| 输入 | `KnowledgePoint` + `StudentProfile` + 课件文本 + `question_count`（5-10） |
-| 输出 | `ResourceOutput { QuizContent }`（8 道题，题型混合，每道题含 stem/options/answer/explanation） |
-| 调用方 | 后端资源生成流 `/api/resource/generate`（`quiz` 类型） |
-| 前端展示 | [资源工作台](A3/Course-Agent/creative/app/(platform)/workspace/page.tsx) — 答题卡片 |
-
-**后端对接要点**：每道题的 `options` 格式为 `["A. 选项A", "B. 选项B", ...]`，`correct_answer` 为 `"A"` 或 `"ABD"`（多选）。后端转换为 API 格式时需注意 `question_type` 映射：`single_choice / multiple_choice / true_false / short_answer`。
-
-### Agent 7：VideoAgent（视频推送 + 导览脚本）
-
-| 项目 | 说明 |
-|---|---|
-| 功能 | 扫描知识点素材目录找到 MP4 文件 → LLM 生成个性化视频导览脚本（5 段分镜 + 推送理由） |
-| 输入 | `KnowledgePoint` + `StudentProfile` + 课件文本 + `materials_dir`（素材目录路径） |
-| 输出 | `VideoResult { has_video, video_path, push_reason, resource { VideoScriptContent } }` |
-| 调用方 | 后端资源生成流 `/api/resource/generate`（`video` 类型） |
-| 前端展示 | [资源工作台](A3/Course-Agent/creative/app/(platform)/workspace/page.tsx) — 视频播放器 + 导览章节 |
-
-#### ⚠️ 后端对接必读
-
-VideoAgent **不会返回可直接播放的 URL**。它返回的是：
-
-```
-VideoResult:
-  video_path       = "/path/to/A3/knowledge_base/materials/exp05_arp_poisoning/实验五 ARP中毒演示视频.mp4"
-  video_duration   = 360  (秒)
-  has_video        = true / false
-  push_reason      = "推荐理由文本..."
-  resource.content.scenes = [{ narration, visual_description, duration_seconds }, ...]
-```
-
-**后端需要做的事**（参考 `A3/backend/app/agents/real.py` 中的实现）：
-
-1. 将 `video_path` 从磁盘绝对路径转换为前端可访问的 HTTP URL
-2. 构造 `media_url`，例如 `/media/{kp_id}/{video_filename}`
-3. 在 SSE 事件的 `resource.ready` 中设置 `media_url`
-4. 前端拿到 `media_url` 后在 `<video src={media_url}>` 中播放
-
-示例代码：
-```python
-# 在 AgentProvider 实现中
-import os, shutil
-video_name = os.path.basename(result.video_path)
-media_url = f"/media/{knowledge_point.id}/{video_name}"
-
-# 将 MP4 复制/链接到静态资源目录
-static_dir = Path("./static/media") / knowledge_point.id
-static_dir.mkdir(parents=True, exist_ok=True)
-shutil.copy2(result.video_path, static_dir / video_name)
-```
-
-**前端对接要点**：VideoAgent 返回的分镜列表 `scenes` 可以直接用作视频播放器的章节导航，每个分镜的 `duration_seconds` 可用于跳转到对应时间点。
-
-### Agent 8：ReferenceAgent（拓展阅读推荐）
-
-| 项目 | 说明 |
-|---|---|
-| 功能 | 从课程拓展阅读库 + 外部经典读物中，根据学生画像和当前知识点推荐最匹配的阅读材料 |
-| 输入 | `KnowledgePoint` + `StudentProfile` + `shared_refs_summary`（MaterialLoader 提供） |
-| 输出 | `ReferenceResult { library_recommendations[], external_recommendations[], reading_path }` |
-| 调用方 | 后端资源生成流 `/api/resource/generate`（`handout` 类型，暂归类为文档） |
-| 前端展示 | [资源工作台](A3/Course-Agent/creative/app/(platform)/workspace/page.tsx) — 阅读卡片列表 |
-
-#### ⚠️ 后端对接必读
-
-ReferenceAgent 的推荐结果是 **两个独立列表**（不在 `resource.content` 中，因为 Pydantic 类型约束）：
-
-```
-ReferenceResult:
-  library_recommendations: [
-    { title, source: "in_library", file_path, relevance_reason, suggested_focus, priority }
-  ]
-  external_recommendations: [
-    { title, source: "external", author, relevance_reason, suggested_focus, priority }
-  ]
-  reading_path: "建议阅读顺序..."
-```
-
-`file_path` 是磁盘绝对路径（如 `/path/to/shared_references/ROS基础.pdf`），后端需要将其转为前端可访问的 URL。
-
----
-
-## 三、5 类资源类型与 Agent 对应关系
-
-前端请求 `resource_type_list` 时使用以下枚举值：
-
-| 前端 resource_type | 对应 Agent | 说明 |
+| `AGENT_MODE` | Provider | 用途 |
 |---|---|---|
-| `handout` | DocAgent / ReferenceAgent | 讲义文档 或 拓展阅读推荐 |
-| `mindmap` | MindMapAgent | 思维导图 |
-| `quiz` | QuizAgent | 练习题 |
-| `code` | *未接入* | 代码案例（待开发） |
-| `video` | VideoAgent | 视频推送 + 导览 |
+| `mock` | `MockAgentProvider` | 无模型密钥的确定性流程演示和自动化测试 |
+| `local` | `RealAgentProvider` | 调用本目录八类 Agent 和 DeepSeek API |
+| `remote` | `RemoteAgentProvider` | 对接外部团队的多智能体服务 |
 
----
+Provider 选择位于 `backend/app/api/dependencies.py`。Local 模式依赖本目录代码、额外 Python 依赖、顶层课程知识库和有效模型密钥；Mock/Remote 模式不会在启动时强制导入本地 Agent 依赖。
 
-## 四、环境配置
-
-### 后端 .env（FastAPI 网关）
-
-在 `A3/.env`（从根目录 `.env.example` 复制）：
-
-```bash
-# Agent 模式（使用本地 Agent 引擎时选 local）
-AGENT_MODE=mock          # mock=演示模式 | local=真实引擎 | remote=远程服务
-
-# 知识库路径（相对于 backend/ 目录）
-KNOWLEDGE_BASE_ROOT=../knowledge_base
-
-# 数据库
-DATABASE_URL=sqlite:///./data/zhixue.db
-
-# CORS
-WEB_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```text
+FastAPI route/service
+        |
+        v
+AgentProvider interface
+        |
+        +-- MockAgentProvider
+        +-- RealAgentProvider  ----> backend/agent/*
+        +-- RemoteAgentProvider ---> external service
+        |
+        v
+GatewayEvent / ResourceDraft / API Schema
 ```
 
-### Agent .env（AI 引擎）
+本地 Agent 的 Pydantic 模型与网关 `app.schemas.*` 并不相同。`RealAgentProvider` 负责画像、资源、题型、路径和错误格式的双向转换，前端不直接依赖本目录数据模型。
 
-在 `A3/.env`：
+## 目录结构
 
-```bash
-DEEPSEEK_API_KEY=sk-your-api-key-here
+```text
+backend/agent/
+├── config.py                  # 根 .env 中的 DeepSeek 配置
+├── requirements.txt           # 本地 Agent 额外依赖
+├── models/
+│   └── schemas.py             # Agent 共用模型和枚举
+├── utils/
+│   ├── llm_client.py          # 同步/异步调用、流式输出和重试
+│   ├── json_parser.py         # 模型文本到结构化 JSON
+│   ├── dag_loader.py          # 知识 DAG 加载
+│   └── material_loader.py     # PDF/DOCX/PPTX/TXT 等资料提取
+├── profile_agent/             # 六维学习画像
+├── supervisor/                # 意图识别与会话调度
+├── planner/                   # 知识 DAG 学习路径规划
+├── doc_agent/                 # 个性化讲义
+├── mindmap_agent/             # 思维导图
+├── quiz_agent/                # 练习题
+├── video_agent/               # 课程视频匹配与导览脚本
+├── reference_agent/           # 课程内外拓展阅读
+└── knowledge_base/            # 旧模板参考，不是运行时知识库
+```
+
+权威课程源目录是仓库顶层 [knowledge_base](../../knowledge_base/README.md)。
+
+## 八类 Agent
+
+### 1. ProfileAgent：对话式学习画像
+
+| 项目 | 内容 |
+|---|---|
+| 输入 | 用户本轮自然语言、已有画像、对话历史 |
+| 输出 | `ProfileExtractionResult` 和 `StudentProfile` |
+| 核心维度 | 专业/年级与基础、知识掌握、认知风格、目标、薄弱点、学习节奏与兴趣 |
+| 网关映射 | 固定为知识基础、认知风格、薄弱点、学习节奏、内容偏好、短期目标六个字段 |
+
+模型返回的 `is_complete` 不是唯一判断依据。`RealAgentProvider` 会再次按已填维度计数，并在信息不足时提出针对性追问。
+
+### 2. Supervisor：意图识别与调度
+
+| 项目 | 内容 |
+|---|---|
+| 输入 | 用户文本和 `SessionState` |
+| 输出 | `SupervisorResult`、意图、回复和更新后的会话状态 |
+| 支持意图 | `extract_profile`、`plan_path`、`answer_question`、`generate_resource`、`evaluate`、`chitchat` |
+
+Supervisor 提供本地 Agent 编排能力并有独立测试，但当前 `RealAgentProvider` 未导入或调用它。活动网关以明确 API 路由和 `AgentProvider` 方法直接分派画像、资源、路径、答疑和评估任务；因此不能把 Supervisor 描述为当前线上请求的实际总调度器。
+
+### 3. PlannerAgent：个性化学习路径
+
+| 项目 | 内容 |
+|---|---|
+| 输入 | `StudentProfile` 与 `KnowledgeDAG` |
+| 输出 | `LearningPath` 和有序 `LearningPathNode` |
+| 机制 | 先修依赖拓扑排序、学习深度/时长建议和资源类型推荐 |
+
+网关将本地路径节点转换为 API 路径节点，并尽量绑定已生成的匹配资源。
+
+### 4. DocAgent：讲义生成
+
+| 项目 | 内容 |
+|---|---|
+| 输入 | 知识点、学习画像和课程材料文本 |
+| 输出 | `DocResult` / `ResourceOutput<DocContent>` |
+| 内容 | 结构化章节、Markdown 正文、关键点、总结和延伸阅读 |
+
+网关使用 `_sections_to_markdown()` 将章节列表转换为前端 `handout.payload.markdown`。
+
+### 5. MindMapAgent：知识图解
+
+| 项目 | 内容 |
+|---|---|
+| 输入 | 知识点、画像和材料文本 |
+| 输出 | `MindMapResult` / `MindMapContent` |
+| 内容 | 根主题、节点树和 Mermaid 语法 |
+
+网关当前主要传递标准化节点数组；前端使用节点图或 Mermaid 渲染并提供失败降级。
+
+### 6. QuizAgent：个性化练习
+
+| 项目 | 内容 |
+|---|---|
+| 输入 | 知识点、画像、材料文本和题目数量 |
+| 输出 | `QuizResult` / `QuizContent` |
+| 题型 | 单选、多选、判断、简答 |
+
+`RealAgentProvider` 将本地题型映射到网关稳定题型，并生成前端需要的题目 ID、选项、答案和解析。
+
+### 7. VideoAgent：视频匹配与导览
+
+| 项目 | 内容 |
+|---|---|
+| 输入 | 知识点、画像、材料上下文和素材目录 |
+| 输出 | `VideoResult`、本地视频路径、推荐理由和 `VideoScriptContent` |
+| 行为 | 优先匹配课程中真实视频，并生成个性化导览脚本 |
+
+VideoAgent 返回的是磁盘路径，不是浏览器 URL。网关必须验证文件存在，并转换为受控 `/media/...` URL；不得向前端暴露任意绝对路径。
+
+### 8. ReferenceAgent：拓展阅读推荐
+
+| 项目 | 内容 |
+|---|---|
+| 输入 | 知识点、画像、共享资料摘要和资料清单 |
+| 输出 | `ReferenceResult`、课程内推荐、外部经典推荐和阅读顺序 |
+
+课程内推荐的 `file_path` 同样需要由网关转换为安全 URL。外部推荐是模型建议，不等同于已下载或已核验的仓库资料。
+
+## 前端资源类型映射
+
+网关对前端稳定提供五种资源枚举：
+
+| API `resource_type` | 本地处理 | 前端主要渲染 |
+|---|---|---|
+| `handout` | DocAgent | Markdown 讲义 |
+| `mindmap` | MindMapAgent | 节点图 / Mermaid |
+| `quiz` | QuizAgent | 在线题库 |
+| `video` | VideoAgent | 视频卡片和播放器 |
+| `code` | 当前 Local Provider 使用 ReferenceAgent 生成拓展阅读，并返回 `handout` | Mock/Remote 可提供真正代码案例 |
+
+最后一行是当前实现边界：本地 `code` 分支尚未接入独立 CodeAgent，不能将其描述为真实代码生成 Agent。若新增 CodeAgent，应同时更新 `ResourceType`、`RealAgentProvider` 映射、API 契约测试和前端渲染测试。
+
+## 共用数据模型
+
+`models/schemas.py` 定义本地 Agent 的核心类型：
+
+- 画像：`StudentProfile`、`KnowledgeBaseItem`、`WeakPoint`。
+- 知识图谱：`KnowledgePoint`、`KnowledgeDAG`。
+- 路径：`LearningPath`、`LearningPathNode`。
+- 资源：`ResourceOutput`、`DocContent`、`MindMapContent`、`QuizContent`、`CodeContent`、`VideoScriptContent`。
+- 会话：`TaskIntent`、`Task`、`SessionState`。
+
+所有模型输出在进入网关前仍需经过转换和 API Schema 校验，不应直接序列化给前端。
+
+## 环境配置
+
+从仓库根 `.env.example` 复制 `.env`，Local 模式至少设置：
+
+```dotenv
+AGENT_MODE=local
+DEEPSEEK_API_KEY=replace-with-secret
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_MODEL=deepseek-reasoner
 DEEPSEEK_TIMEOUT=120
 DEEPSEEK_MAX_RETRIES=3
+KNOWLEDGE_BASE_ROOT=knowledge_base
 ```
 
-### 系统依赖
+`config.py` 从仓库根 `.env` 加载配置。密钥不得写入 README、源码、日志或提交记录。
+
+安装本地 Agent 额外依赖：
 
 ```bash
-# Ubuntu 24.04
+cd backend
+python -m pip install -r agent/requirements.txt
+```
+
+VideoAgent 读取视频时长时依赖 `ffprobe`；Linux 可通过 FFmpeg 软件包提供：
+
+```bash
 sudo apt update
-sudo apt install ffmpeg -y    # VideoAgent 需要 ffprobe 读视频时长
-
-# Python 依赖
-cd A3/backend
-pip install -r agent/requirements.txt
+sudo apt install -y ffmpeg
 ```
 
----
+## 网关集成
 
-## 五、后端集成指南
+`RealAgentProvider` 实现以下活动网关方法：
 
-### 方式 A：使用 RealAgentProvider（推荐）
+- `stream_profile()`：画像对话流和画像 patch。
+- `stream_resources()`：资源 Agent 事件与 `ResourceDraft`。
+- `build_learning_path()`：路径草案。
+- `stream_qa()`：文字、图解和视频答疑流。
+- `build_evaluation()`：基于学习证据的评估草案。
 
-1. 在 `A3/backend/app/agents/real.py` 中已有 `RealAgentProvider` 实现（需要复制回来或重新创建）
-2. 在 `A3/backend/app/api/dependencies.py` 中注册 `"local"` 模式
-3. 在 `A3/backend/app/core/config.py` 中添加 `"local"` 到 `agent_mode`
-4. 在 `A3/.env` 中设置 `AGENT_MODE=local` 和 `DEEPSEEK_API_KEY`
+网关负责：
 
-### 方式 B：直接调用
+1. 将 API 六维画像转换为本地 `StudentProfile`，并把结果映射回固定字段。
+2. 将本地资源、题型和路径转换为稳定 API payload。
+3. 产生统一 `GatewayEvent`，附带 `task_id`、`trace_id`、进度和错误信息。
+4. 持久化用户、任务、资源、学习事件和评估结果。
+5. 校验并转换本地媒体路径，避免路径穿越和磁盘路径泄露。
 
-```python
-from agent.doc_agent import DocAgent
-from agent.utils.material_loader import MaterialLoader
+## 测试
 
-loader = MaterialLoader("../knowledge_base")
-kp = loader.load_dag().knowledge_points[0]
-
-result = DocAgent().generate(kp, student_profile, material_context=loader.get_context(kp.id))
-```
-
-### 关键转换函数
-
-Agent 引擎使用自己的数据模型（`agent.models.StudentProfile` 等），后端网关使用 API Schema（`app.schemas.profile.StudentProfileData` 等）。两者格式不同，需要在 AgentProvider 中做转换。
-
-参考 `A3/backend/app/agents/real.py` 中的 `_api_profile_to_agent()` 函数。
-
----
-
-## 六、前端对接要点
-
-### 资源详情 API 返回格式
-
-前端调用 `GET /api/resource/detail/{resource_id}` 后按 `resource_type` 解析：
-
-| resource_type | payload 字段 | 渲染组件 |
-|---|---|---|
-| `handout` | `{ "markdown": "..." }` | `react-markdown` |
-| `mindmap` | `{ "nodes": [{id, label, parent_id}] }` | 自定义树组件 或 Mermaid |
-| `quiz` | `{ "questions": [{id, question_type, prompt, options, answer, explanation}] }` | 答题卡片 |
-| `video` | `{ "summary", "poster_url", "duration_seconds" }` + `media_url` | `<video>` 播放器 |
-| `code` | `{ "language", "code", "description" }` | 代码高亮组件 |
-
-### VideoAgent 前端渲染
-
-VideoAgent 的分镜/导览脚本暂不在标准 API 格式中（API 的 video payload 只有 summary/duration_seconds），建议通过以下方式传递：
-
-1. 后端在 video 资源的 `payload` 中增加 `scenes` 字段
-2. 前端读取 `scenes` 渲染为视频章节导航条，支持点击跳转到对应时间
-
----
-
-## 七、测试
-
-### Mock 测试（无需 API Key，秒级完成）
+本地 Agent 测试使用 Mock LLM client，不需要真实 API Key：
 
 ```bash
-cd A3/backend
-
-python -m agent.profile_agent.test_profile_agent     # 14 项
-python -m agent.planner.test_planner                 # 14 项
-python -m agent.supervisor.test_supervisor           # 19 项
-python -m agent.doc_agent.test_doc_agent             # 12 项
-python -m agent.mindmap_agent.test_mindmap_agent     # 12 项
-python -m agent.quiz_agent.test_quiz_agent           # 12 项
-python -m agent.video_agent.test_video_agent         # 11 项
-python -m agent.reference_agent.test_reference_agent # 10 项
-
-# 全部 104 项，应全部通过
+cd backend
+python -m agent.profile_agent.test_profile_agent
+python -m agent.supervisor.test_supervisor
+python -m agent.planner.test_planner
+python -m agent.doc_agent.test_doc_agent
+python -m agent.mindmap_agent.test_mindmap_agent
+python -m agent.quiz_agent.test_quiz_agent
+python -m agent.video_agent.test_video_agent
+python -m agent.reference_agent.test_reference_agent
 ```
 
-### 真实 LLM 测试（需要 API Key）
+活动网关的契约和回归测试位于 `backend/tests/`：
 
 ```bash
-cd A3/backend
-# 自行编写调用脚本，例如：
-python -c "
-from agent.doc_agent import DocAgent
-from agent.utils.material_loader import MaterialLoader
-loader = MaterialLoader('../knowledge_base')
-dag = loader.load_dag()
-kp = dag.get_by_id('exp01_ros_turtlesim')
-result = DocAgent().generate(kp, material_context=loader.get_context(kp.id))
-print('章节数:', len(result.resource.content.sections))
-"
+python -m pytest tests -q
 ```
 
----
+使用真实 DeepSeek 服务前，应单独验证超时、重试、内容过滤、结构化解析失败和配额错误。不要用真实模型调用替代离线契约测试。
 
-## 八、常见问题
+## 内容安全与错误边界
 
-### Q: VideoAgent 返回 `has_video=false`？
-A: 该知识点在 `A3/knowledge_base/materials/{kp_id}/` 中没有 `.mp4` 文件。这是正常的——目前 15 个知识点中有 6 个有视频（实验一至六）。
+- 模型输出先经过 JSON 提取、本地 Pydantic 模型和网关 API Schema 校验。
+- 解析失败、模型失败和媒体缺失应返回明确错误或空媒体状态，不能伪装成成功内容。
+- 网关的 `CONTENT_BLOCKED` 不自动重试；上游内容安全策略仍需在真实模型服务侧配置和审计。
+- 课程资料是生成依据，但不等于自动保证事实正确；正式使用应增加来源引用、人工复核和敏感内容审核。
+- 日志不得记录 API Key、完整 Authorization 头或不必要的个人学习数据。
 
-### Q: 启动后端时卡住？
-A: 首次启动时需要同步知识库（约 18 秒），运行 `python setup_data.py` 预处理即可。
+## 已知边界
 
-### Q: PyMuPDF 导入失败？
-A: `pip install PyMuPDF`，或系统缺少 `libmupdf`。可用 `pip install pypdf` 作为轻量替代。
+- Local 模式的独立 CodeAgent 尚未接入，`code` 请求当前映射为拓展阅读。
+- 外部经典阅读推荐需要人工核验书目真实性和可获得性。
+- 图片和视频生成服务不是本地 Agent 的统一能力；视频优先使用课程已有文件。
+- 简易 `user_id` 会话适合比赛演示，不是生产身份认证。
 
-### Q: GBK 编码错误？
-A: 已修复——Agent 代码已移除 Windows 专用编码逻辑，使用 `utf-8 → utf-16 → latin-1` 编码链。
+## 相关文档
 
-### Q: 如何对接到我自己的 AgentProvider？
-A: 参考 `A3/backend/app/agents/base.py` 中的 `AgentProvider` 抽象类，实现 `stream_profile`、`stream_resources`、`build_learning_path` 等方法，在方法内调用对应的 Agent。
+- [项目总览](../../README.md)
+- [FastAPI 网关与 Agent 接入](../../docs/api-integration.md)
+- [课程知识库搭建](../../knowledge_base/README.md)
+- [部署与环境配置](../../docs/deployment.md)
