@@ -12,6 +12,7 @@ from app.api.routes.courses import router as courses_router
 from app.api.routes.dag import router as dag_router
 from app.api.routes.dashboard import router as dashboard_router
 from app.api.routes.learning import router as learning_router
+from app.api.routes.memory import router as memory_router
 from app.api.routes.profile import router as profile_router
 from app.api.routes.qa import router as qa_router
 from app.api.routes.quiz_practice import router as quiz_practice_router
@@ -89,6 +90,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(course_media_router)
     app.include_router(direct_media_router)
     app.include_router(learning_router)
+    app.include_router(memory_router)
     app.include_router(users_router)
     app.include_router(profile_router)
     app.include_router(qa_router)

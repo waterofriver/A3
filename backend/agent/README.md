@@ -191,7 +191,7 @@ ReferenceResult:
 
 ### 后端 .env（FastAPI 网关）
 
-在 `A3/backend/.env`（从 `.env.example` 复制）：
+在 `A3/.env`（从根目录 `.env.example` 复制）：
 
 ```bash
 # Agent 模式（使用本地 Agent 引擎时选 local）
@@ -209,7 +209,7 @@ WEB_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 
 ### Agent .env（AI 引擎）
 
-在 `A3/backend/agent/.env`：
+在 `A3/.env`：
 
 ```bash
 DEEPSEEK_API_KEY=sk-your-api-key-here
@@ -240,7 +240,7 @@ pip install -r agent/requirements.txt
 1. 在 `A3/backend/app/agents/real.py` 中已有 `RealAgentProvider` 实现（需要复制回来或重新创建）
 2. 在 `A3/backend/app/api/dependencies.py` 中注册 `"local"` 模式
 3. 在 `A3/backend/app/core/config.py` 中添加 `"local"` 到 `agent_mode`
-4. 在 `A3/backend/.env` 中设置 `AGENT_MODE=local`
+4. 在 `A3/.env` 中设置 `AGENT_MODE=local` 和 `DEEPSEEK_API_KEY`
 
 ### 方式 B：直接调用
 

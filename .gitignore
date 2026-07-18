@@ -226,6 +226,10 @@ Temporary Items
 /.next/
 /out/
 Course-Agent/creative/.next/
+Course-Agent/creative/.next-verify/
+Course-Agent/creative/.next-*/
+Course-Agent/creative/output/
+.playwright-cli/
 Course-Agent/creative/out/
 
 # production

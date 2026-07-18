@@ -21,6 +21,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/knowledge/dag": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Dag Status */
+        get: operations["get_dag_status_api_knowledge_dag_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Dashboard */
+        get: operations["get_dashboard_api_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/eval/report": {
         parameters: {
             query?: never;
@@ -140,6 +174,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/memory/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Memory Report */
+        get: operations["get_memory_report_api_memory_report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/user/info": {
         parameters: {
             query?: never;
@@ -149,6 +200,26 @@ export interface paths {
         };
         /** Get User Info */
         get: operations["get_user_info_api_user_info_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/chat/profile/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Profile History
+         * @description 获取用户的历史对话消息。
+         */
+        get: operations["get_profile_history_api_chat_profile_history_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -202,6 +273,40 @@ export interface paths {
         put?: never;
         /** Chat Qa */
         post: operations["chat_qa_api_chat_qa_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/quiz/errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Error Notebook */
+        get: operations["get_error_notebook_api_quiz_errors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/quiz/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Quiz */
+        post: operations["generate_quiz_api_quiz_generate_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -409,6 +514,169 @@ export interface components {
             /** Is Demo */
             is_demo: boolean;
         };
+        /** CurvePoint */
+        CurvePoint: {
+            /** Day */
+            day: number;
+            /** Retention */
+            retention: number;
+        };
+        /** DashboardActivitySummary */
+        DashboardActivitySummary: {
+            /**
+             * Total Events
+             * @default 0
+             */
+            total_events: number;
+            /**
+             * This Week Events
+             * @default 0
+             */
+            this_week_events: number;
+            /**
+             * Streak Days
+             * @default 0
+             */
+            streak_days: number;
+        };
+        /** DashboardData */
+        DashboardData: {
+            /** User Id */
+            user_id: string;
+            /** Display Name */
+            display_name?: string | null;
+            profile?: components["schemas"]["DashboardProfileSummary"];
+            path?: components["schemas"]["DashboardPathProgress"];
+            quiz?: components["schemas"]["DashboardQuizSummary"];
+            /** Recent Resources */
+            recent_resources?: components["schemas"]["DashboardRecentResource"][];
+            activity?: components["schemas"]["DashboardActivitySummary"];
+            /** Weak Points */
+            weak_points?: components["schemas"]["DashboardWeakPoint"][];
+        };
+        /** DashboardPathProgress */
+        DashboardPathProgress: {
+            /**
+             * Total Nodes
+             * @default 0
+             */
+            total_nodes: number;
+            /**
+             * Completed Nodes
+             * @default 0
+             */
+            completed_nodes: number;
+            /**
+             * Percent
+             * @default 0
+             */
+            percent: number;
+            /**
+             * Course Name
+             * @default
+             */
+            course_name: string;
+        };
+        /** DashboardProfileSummary */
+        DashboardProfileSummary: {
+            /**
+             * Cognitive Style
+             * @default
+             */
+            cognitive_style: string;
+            /**
+             * Learning Pace
+             * @default
+             */
+            learning_pace: string;
+            /**
+             * Short Term Goal
+             * @default
+             */
+            short_term_goal: string;
+            /**
+             * Profile Text
+             * @default
+             */
+            profile_text: string;
+        };
+        /** DashboardQuizSummary */
+        DashboardQuizSummary: {
+            /**
+             * Total Attempts
+             * @default 0
+             */
+            total_attempts: number;
+            /**
+             * Avg Score
+             * @default 0
+             */
+            avg_score: number;
+        };
+        /** DashboardRecentResource */
+        DashboardRecentResource: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Resource Type */
+            resource_type: string;
+            /** Created At */
+            created_at: string;
+        };
+        /** DashboardResponse */
+        DashboardResponse: {
+            data: components["schemas"]["DashboardData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** DashboardWeakPoint */
+        DashboardWeakPoint: {
+            /** Name */
+            name: string;
+            /** Frequency */
+            frequency: number;
+        };
+        /** ErrorNotebookData */
+        ErrorNotebookData: {
+            /** Questions */
+            questions: components["schemas"]["ErrorQuestionItem"][];
+            /** Total Errors */
+            total_errors: number;
+            /** Unique Concepts */
+            unique_concepts: number;
+        };
+        /** ErrorNotebookResponse */
+        ErrorNotebookResponse: {
+            data: components["schemas"]["ErrorNotebookData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** ErrorQuestionItem */
+        ErrorQuestionItem: {
+            /** Question Id */
+            question_id: string;
+            /** Attempt Id */
+            attempt_id: string;
+            /** Quiz Title */
+            quiz_title: string;
+            /** Prompt */
+            prompt: string;
+            /** Question Type */
+            question_type: string;
+            /** Options */
+            options?: string[];
+            /** User Answer */
+            user_answer: string;
+            /** Correct Answer */
+            correct_answer: string;
+            /** Explanation */
+            explanation: string;
+            /** Concept */
+            concept: string;
+            /** Created At */
+            created_at: string;
+        };
         /** ErrorResponse */
         ErrorResponse: {
             error: components["schemas"]["GatewayError"];
@@ -571,6 +839,34 @@ export interface components {
             resource_type: "handout";
             payload: components["schemas"]["HandoutPayload"];
         };
+        /** KnowledgeDagNodeStatus */
+        KnowledgeDagNodeStatus: {
+            /** Kp Id */
+            kp_id: string;
+            /** Kp Name */
+            kp_name: string;
+            /** Difficulty */
+            difficulty: number;
+            /**
+             * Category
+             * @default
+             */
+            category: string;
+            /** Prerequisites */
+            prerequisites?: string[];
+            /**
+             * Status
+             * @default untouched
+             */
+            status: string;
+        };
+        /** KnowledgeDagStatusResponse */
+        KnowledgeDagStatusResponse: {
+            /** Data */
+            data: components["schemas"]["KnowledgeDagNodeStatus"][];
+            /** Trace Id */
+            trace_id: string;
+        };
         /** LearningEventBatchData */
         LearningEventBatchData: {
             /** Accepted */
@@ -645,6 +941,73 @@ export interface components {
             /** Trace Id */
             trace_id: string;
         };
+        /** MemoryAction */
+        MemoryAction: {
+            /** Knowledge Point Id */
+            knowledge_point_id: string;
+            /** Title */
+            title: string;
+            /** Minutes */
+            minutes: number;
+            /**
+             * Action Type
+             * @enum {string}
+             */
+            action_type: "recall" | "quiz" | "practice";
+            /** Reason */
+            reason: string;
+        };
+        /** MemoryBlockage */
+        MemoryBlockage: {
+            /** Knowledge Point Id */
+            knowledge_point_id: string;
+            /** Name */
+            name: string;
+            /** Reason */
+            reason: string;
+        };
+        /** MemoryKnowledgePoint */
+        MemoryKnowledgePoint: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Retention */
+            retention: number;
+            /** Base Mastery */
+            base_mastery: number;
+            /** Days Since Review */
+            days_since_review: number;
+            /**
+             * Risk Level
+             * @enum {string}
+             */
+            risk_level: "stable" | "review_soon" | "urgent";
+            /** Curve */
+            curve: components["schemas"]["CurvePoint"][];
+            /** Recommendation */
+            recommendation: string;
+            blockage?: components["schemas"]["MemoryBlockage"] | null;
+        };
+        /** MemoryReportData */
+        MemoryReportData: {
+            /** Memory Health */
+            memory_health: number;
+            /** Summary */
+            summary: string;
+            /** Has Personal Evidence */
+            has_personal_evidence: boolean;
+            /** Knowledge Points */
+            knowledge_points: components["schemas"]["MemoryKnowledgePoint"][];
+            /** Today Actions */
+            today_actions: components["schemas"]["MemoryAction"][];
+        };
+        /** MemoryReportResponse */
+        MemoryReportResponse: {
+            data: components["schemas"]["MemoryReportData"];
+            /** Trace Id */
+            trace_id: string;
+        };
         /** MindMapNode */
         MindMapNode: {
             /** Id */
@@ -692,6 +1055,26 @@ export interface components {
             /** User Id */
             user_id: string;
         };
+        /** ProfileHistoryData */
+        ProfileHistoryData: {
+            /** Messages */
+            messages: components["schemas"]["ProfileMessageData"][];
+        };
+        /** ProfileHistoryResponse */
+        ProfileHistoryResponse: {
+            data: components["schemas"]["ProfileHistoryData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** ProfileMessageData */
+        ProfileMessageData: {
+            /** Id */
+            id: string;
+            /** Role */
+            role: string;
+            /** Content */
+            content: string;
+        };
         /** QaRequest */
         QaRequest: {
             /** User Id */
@@ -704,6 +1087,23 @@ export interface components {
              * @enum {string}
              */
             answer_mode: "text" | "image" | "video";
+        };
+        /** QuizGenerateRequest */
+        QuizGenerateRequest: {
+            /** User Id */
+            user_id: string;
+            /** Course Name */
+            course_name: string;
+            /**
+             * Weak Point
+             * @default
+             */
+            weak_point: string;
+            /**
+             * Count
+             * @default 5
+             */
+            count: number;
         };
         /** QuizPayload */
         QuizPayload: {
@@ -785,6 +1185,22 @@ export interface components {
         /** QuizSubmitResponse */
         QuizSubmitResponse: {
             data: components["schemas"]["QuizSubmitData"];
+            /** Trace Id */
+            trace_id: string;
+        };
+        /** QuizTaskAcceptedData */
+        QuizTaskAcceptedData: {
+            /** Task Id */
+            task_id: string;
+            /**
+             * Status
+             * @default queued
+             */
+            status: string;
+        };
+        /** QuizTaskResponse */
+        QuizTaskResponse: {
+            data: components["schemas"]["QuizTaskAcceptedData"];
             /** Trace Id */
             trace_id: string;
         };
@@ -1002,6 +1418,124 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_dag_status_api_knowledge_dag_get: {
+        parameters: {
+            query: {
+                user_id: string;
+                course_name?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeDagStatusResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_dashboard_api_dashboard_get: {
+        parameters: {
+            query: {
+                user_id: string;
+                course_name?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
             /** @description 统一错误响应 */
@@ -1418,6 +1952,65 @@ export interface operations {
             };
         };
     };
+    get_memory_report_api_memory_report_get: {
+        parameters: {
+            query: {
+                user_id: string;
+                course_name?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemoryReportResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     get_user_info_api_user_info_get: {
         parameters: {
             query: {
@@ -1436,6 +2029,64 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserInfoResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_profile_history_api_chat_profile_history_get: {
+        parameters: {
+            query: {
+                user_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileHistoryResponse"];
                 };
             };
             /** @description 统一错误响应 */
@@ -1617,6 +2268,126 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_error_notebook_api_quiz_errors_get: {
+        parameters: {
+            query: {
+                user_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorNotebookResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 统一错误响应 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description 统一错误响应 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    generate_quiz_api_quiz_generate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuizGenerateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizTaskResponse"];
                 };
             };
             /** @description 统一错误响应 */

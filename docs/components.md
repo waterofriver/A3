@@ -12,6 +12,7 @@
 | `/resources/[resourceId]` | 单资源阅读、答题和学习行为上报 | `ResourceCard`、`QuizPlayer` | resource/quiz/learning APIs |
 | `/path` | 展示画像摘要和五阶段学习路线 | `ProfileSummary`、`LearningPathGraph` | `GET /api/path/get` |
 | `/evaluation` | 展示评分、薄弱点、建议并更新计划 | `EvaluationPageContent`、`ScorePanel`、`WeaknessChart`、`PlanChanges` | eval APIs |
+| `/memory` | 展示记忆保持度、先修知识定位和今日复习建议 | `MemoryDashboard` | `GET /api/memory/report` |
 | `/knowledge` | 只读浏览真实课程目录和文档 | `KnowledgePageContent`、`KnowledgeTree`、`DocumentPreview` | course APIs |
 
 `AppShell` 只负责全局导航、在线状态提示、Mock/降级标识和 `QaDrawer` 挂载。业务页面不把自身请求状态写入全局壳层。`SessionGuard` 只判断本地会话是否存在，不承担后端权限控制。

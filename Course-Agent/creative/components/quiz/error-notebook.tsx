@@ -134,6 +134,17 @@ function ErrorCard({ item }: { item: ErrorQuestion }) {
 }
 
 export function ErrorNotebook({ data, isLoading, error: queryError, onRetry }: Props) {
+  const groups = useMemo(() => {
+    const questions = data?.questions ?? []
+    const map = new Map<string, ErrorQuestion[]>()
+    for (const question of questions) {
+      const list = map.get(question.concept) ?? []
+      list.push(question)
+      map.set(question.concept, list)
+    }
+    return [...map.entries()]
+  }, [data?.questions])
+
   if (isLoading) {
     return (
       <div className="flex h-[360px] items-center justify-center text-sm text-[#718096]" role="status">
@@ -173,17 +184,6 @@ export function ErrorNotebook({ data, isLoading, error: queryError, onRetry }: P
       </div>
     )
   }
-
-  // 按概念分组
-  const groups = useMemo(() => {
-    const map = new Map<string, ErrorQuestion[]>()
-    for (const q of data.questions) {
-      const list = map.get(q.concept) ?? []
-      list.push(q)
-      map.set(q.concept, list)
-    }
-    return [...map.entries()]
-  }, [data.questions])
 
   return (
     <div>

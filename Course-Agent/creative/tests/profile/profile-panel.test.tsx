@@ -26,4 +26,12 @@ describe("ProfilePanel", () => {
       expect(screen.getByText(label)).toBeInTheDocument()
     }
   })
+
+  it("keeps profile content inside padded cards", () => {
+    render(<ProfilePanel profile={profile} />)
+
+    const knowledgeCard = screen.getByRole("heading", { name: "知识基础" }).closest("article")
+
+    expect(knowledgeCard).toHaveClass("p-5")
+  })
 })

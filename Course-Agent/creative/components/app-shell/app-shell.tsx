@@ -38,6 +38,7 @@ const navigation = [
   { href: "/path", label: "学习路径", icon: Route },
   { href: "/evaluation", label: "学习评估", icon: BarChart3 },
   { href: "/knowledge", label: "课程知识库", icon: LibraryBig },
+  { href: "/memory", label: "我的记忆地图", icon: BrainCircuit },
 ]
 
 const isNavigationActive = (pathname: string, href: string) =>

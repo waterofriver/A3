@@ -95,14 +95,14 @@ export function ProfilePanel({ profile }: { profile: StudentProfile }) {
         {dimensions.map((dimension) => {
           const Icon = dimension.icon
           return (
-            <article className="min-h-[142px] rounded-xl border border-slate-200 bg-white p-4.5 shadow-sm hover:shadow hover:border-slate-300 transition-all duration-200" key={dimension.key}>
-              <div className="flex items-center gap-2.5">
-                <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${dimension.tone}`}>
-                  <Icon aria-hidden="true" className="h-4 w-4" />
+            <article className="min-h-[152px] rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow" key={dimension.key}>
+              <div className="flex items-center gap-3">
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${dimension.tone}`}>
+                  <Icon aria-hidden="true" className="h-5 w-5" />
                 </span>
                 <h3 className="text-sm font-bold text-slate-700">{dimension.label}</h3>
               </div>
-              <div className="mt-4 text-sm leading-relaxed">
+              <div className="mt-5 text-sm leading-relaxed">
                 <ProfileValue value={profile[dimension.key]} />
               </div>
             </article>

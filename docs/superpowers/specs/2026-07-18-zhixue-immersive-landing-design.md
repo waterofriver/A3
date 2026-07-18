@@ -97,3 +97,10 @@
 - 1366x768、1920x1080 与 440x900 下无明显溢出、文本遮挡或控件重叠。
 - 在移动端、`prefers-reduced-motion` 和 WebGL 不可用场景下，正文与登录功能完整可用。
 - 类型检查、现有登录组件测试和新增展示页交互测试通过；以浏览器截图检查桌面与移动端画面非空、场景可见且章节文案可读。
+
+## 2026-07-18 Interaction Amendment
+
+- Chapter navigation is discrete: one wheel gesture, vertical touch swipe, ArrowUp/ArrowDown, or PageUp/PageDown moves exactly one chapter.
+- A chapter transition uses a controlled 700 ms viewport animation. Additional chapter-navigation input is ignored until it completes, so no section can remain partially visible.
+- The particle scene does not consume chapter, wheel, touch, keyboard, or scroll state.
+- The particle core rotates slowly on its own. On fine-pointer devices, only a pressed primary mouse button may rotate the scene; ordinary pointer movement and every scroll action leave its orientation unchanged.

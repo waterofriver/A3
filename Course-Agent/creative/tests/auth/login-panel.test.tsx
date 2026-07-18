@@ -35,6 +35,7 @@ describe("LoginPanel", () => {
     })
     render(<LoginPanel />)
 
+    await userEvent.click(screen.getByRole("button", { name: "进入学习空间" }))
     await userEvent.type(screen.getByLabelText("用户 ID"), " student-001 ")
     await userEvent.click(screen.getByRole("button", { name: "进入学习平台" }))
 
@@ -52,6 +53,7 @@ describe("LoginPanel", () => {
     })
     render(<LoginPanel />)
 
+    await userEvent.click(screen.getByRole("button", { name: "进入学习空间" }))
     await userEvent.type(screen.getByLabelText("用户 ID"), "student-002")
     await userEvent.click(screen.getByRole("button", { name: "进入学习平台" }))
 
@@ -64,6 +66,7 @@ describe("LoginPanel", () => {
     )
     render(<LoginPanel />)
 
+    await userEvent.click(screen.getByRole("button", { name: "进入学习空间" }))
     await userEvent.type(screen.getByLabelText("用户 ID"), "student-003")
     await userEvent.click(screen.getByRole("button", { name: "进入学习平台" }))
 

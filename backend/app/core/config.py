@@ -8,7 +8,7 @@ WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=WORKSPACE_ROOT / ".env", extra="ignore")
 
     database_url: str = "sqlite:///./data/zhixue.db"
     agent_mode: Literal["mock", "remote", "local"] = "mock"

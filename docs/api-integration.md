@@ -53,6 +53,7 @@
 | `POST /api/chat/qa` | 用户、问题、回答模式 | POST SSE；响应头 `X-Task-ID` |
 | `GET /api/eval/report?user_id=&course_name=` | 查询参数 | 分数、薄弱点和建议 |
 | `POST /api/eval/apply` | `report_id` | 幂等返回应用后的路径版本 |
+| `GET /api/memory/report?user_id=&course_name=` | 查询参数 | 记忆保持度估计、先修知识提示和最多三条复习建议 |
 
 ## 画像
 
@@ -200,6 +201,12 @@ Accept: text/event-stream
 学习事件类型固定为 `resource_opened`、`resource_closed`、`path_node_completed`、`question_asked`、`video_progress`。评估服务基于已持久化的答题成绩、路径节点和高频问题构造证据，前端不提交分数。
 
 `POST /api/eval/apply` 只接收 `report_id`。相同报告重复应用时返回同一路径版本，不重复创建计划。
+
+## 学习记忆助手
+
+`GET /api/memory/report` 从已持久化的测验、学习事件、路径完成状态和课程知识 DAG 计算“学习记忆保持度估计”。每个知识点返回第 0、1、3、7 天的估计曲线、风险等级、复习建议和可选的先修知识提示；最多返回三条今日行动建议。该结果是用于安排复习顺序的解释性估计，不是心理测量结论。
+
+新用户或尚无可映射学习行为时仍返回 200，并在 `has_personal_evidence=false` 与摘要中明确标记为课程起步建议。前端不得把起步建议描述为个人学习结论。
 
 ## Remote Agent 接入
 
