@@ -6,16 +6,14 @@ import { CodeBlock } from "@/components/resources/code-block"
 import { MarkdownRenderer } from "@/components/resources/markdown-renderer"
 import { MediaCard } from "@/components/resources/media-card"
 import { MindMapViewer } from "@/components/resources/mind-map-viewer"
-import { QuizPlayer } from "@/components/resources/quiz-player"
 import { VideoPlayer } from "@/components/resources/video-player"
 import { resolveApiUrl } from "@/lib/api/client"
 import type { ResourceDetail, ResourceType } from "@/lib/api/resource-types"
 import { getUserId } from "@/lib/session/user-session"
 
-const labels: Record<ResourceType, string> = {
+const labels: Partial<Record<ResourceType, string>> = {
   handout: "讲义文档",
   mindmap: "思维导图",
-  quiz: "习题题库",
   code: "拓展阅读",
   video: "教学图文视频",
 }
@@ -59,7 +57,12 @@ function ResourceBody({ resource }: { resource: ResourceDetail }) {
   if (resource.resource_type === "mindmap") {
     return <MindMapViewer nodes={resource.payload.nodes} />
   }
-  return <QuizPlayer resource={resource} userId={getUserId() ?? ""} />
+  // quiz 已独立为「题库练习」页面，工作台不再展示
+  return (
+    <div className="grid min-h-[160px] place-items-center text-sm text-[#98a3b3]">
+      请在「题库练习」中查看此资源
+    </div>
+  )
 }
 
 export function ResourceCard({ resource }: { resource: ResourceDetail }) {
@@ -79,7 +82,7 @@ export function ResourceCard({ resource }: { resource: ResourceDetail }) {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <NotebookTabs aria-hidden="true" className="h-4 w-4 text-primary" />
-            <span className="text-xs font-bold text-primary tracking-wider uppercase">{labels[resource.resource_type]}</span>
+            <span className="text-xs font-bold text-primary tracking-wider uppercase">{labels[resource.resource_type] ?? resource.resource_type}</span>
           </div>
           <h2 className="mt-2 text-lg font-bold tracking-tight text-slate-800">{resource.title}</h2>
         </div>

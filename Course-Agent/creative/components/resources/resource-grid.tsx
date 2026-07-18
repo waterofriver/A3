@@ -1,16 +1,14 @@
-import { Braces, FileText, FolderOpen, ListChecks, Network, Video } from "lucide-react"
+import { Braces, FileText, FolderOpen, Network, Video } from "lucide-react"
 import Link from "next/link"
 
 import { EmptyState } from "@/components/shared/empty-state"
 import type { ResourceSummary, ResourceType } from "@/lib/api/resource-types"
 
-const resourceMeta: Record<
-  ResourceType,
-  { label: string; icon: typeof FileText; tone: string }
+const resourceMeta: Partial<
+  Record<ResourceType, { label: string; icon: typeof FileText; tone: string }>
 > = {
   handout: { label: "讲义文档", icon: FileText, tone: "bg-blue-50 border border-blue-100 text-blue-600" },
   mindmap: { label: "思维导图", icon: Network, tone: "bg-emerald-50 border border-emerald-100 text-emerald-600" },
-  quiz: { label: "习题题库", icon: ListChecks, tone: "bg-amber-50 border border-amber-100 text-amber-600" },
   code: { label: "代码案例", icon: Braces, tone: "bg-violet-50 border border-violet-100 text-violet-600" },
   video: { label: "教学视频", icon: Video, tone: "bg-rose-50 border border-rose-100 text-rose-600" },
 }
@@ -40,6 +38,7 @@ export function ResourceGrid({
         <div className="mt-4 grid grid-cols-2 gap-4">
           {resources.map((resource) => {
             const meta = resourceMeta[resource.resource_type]
+            if (!meta) return null
             const Icon = meta.icon
             return (
               <article className="min-h-[166px] rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200" key={resource.id}>

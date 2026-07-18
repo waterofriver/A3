@@ -9,9 +9,12 @@ from app.api.routes.evaluation import router as evaluation_router
 from app.api.routes.courses import media_router as course_media_router
 from app.api.routes.courses import direct_media_router
 from app.api.routes.courses import router as courses_router
+from app.api.routes.dag import router as dag_router
+from app.api.routes.dashboard import router as dashboard_router
 from app.api.routes.learning import router as learning_router
 from app.api.routes.profile import router as profile_router
 from app.api.routes.qa import router as qa_router
+from app.api.routes.quiz_practice import router as quiz_practice_router
 from app.api.routes.resources import router as resources_router
 from app.api.routes.tasks import router as tasks_router
 from app.api.routes.users import router as users_router
@@ -79,6 +82,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_middleware(TraceIdMiddleware)
     register_error_handlers(app)
     app.include_router(health_router)
+    app.include_router(dag_router)
+    app.include_router(dashboard_router)
     app.include_router(evaluation_router)
     app.include_router(courses_router)
     app.include_router(course_media_router)
@@ -87,6 +92,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(users_router)
     app.include_router(profile_router)
     app.include_router(qa_router)
+    app.include_router(quiz_practice_router)
     app.include_router(resources_router)
     app.include_router(tasks_router)
     return app

@@ -10,7 +10,7 @@ export default function RootPage() {
   const router = useRouter()
 
   useEffect(() => {
-    router.replace(getUserId() ? "/workspace" : "/login")
+    router.replace(getUserId() ? "/dashboard" : "/login")
   }, [router])
 
   return (

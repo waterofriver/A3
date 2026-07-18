@@ -17,10 +17,9 @@ import type { ResourceConnectionState } from "@/lib/sse/resource-event-source"
 import type { ResourceType } from "@/lib/api/resource-types"
 import type { ResourceTaskState } from "@/lib/query/resource-cache"
 
-const labels: Record<ResourceType, string> = {
+const labels: Partial<Record<ResourceType, string>> = {
   handout: "讲义文档",
   mindmap: "思维导图",
-  quiz: "习题题库",
   code: "拓展阅读",
   video: "教学图文视频",
 }
@@ -131,7 +130,7 @@ export function TaskRail({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <span className="truncate text-xs font-bold text-slate-600">
-                      {labels[resourceType]}
+                      {labels[resourceType] ?? resourceType}
                     </span>
                     <span className="shrink-0 text-[10px] font-semibold text-slate-400">
                       {statusLabels[item.status]}

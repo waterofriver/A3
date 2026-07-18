@@ -4,6 +4,8 @@ import {
   BarChart3,
   BookOpenText,
   BrainCircuit,
+  FileQuestion,
+  LayoutDashboard,
   LibraryBig,
   LogOut,
   MessageCircleQuestion,
@@ -29,8 +31,10 @@ import {
 import { cn } from "@/lib/utils"
 
 const navigation = [
+  { href: "/dashboard", label: "学习仪表盘", icon: LayoutDashboard },
   { href: "/profile", label: "画像采集", icon: UserRoundSearch },
   { href: "/workspace", label: "资源工作台", icon: Sparkles },
+  { href: "/quiz", label: "题库练习", icon: FileQuestion },
   { href: "/path", label: "学习路径", icon: Route },
   { href: "/evaluation", label: "学习评估", icon: BarChart3 },
   { href: "/knowledge", label: "课程知识库", icon: LibraryBig },

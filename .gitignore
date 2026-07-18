@@ -546,3 +546,4 @@ Course-Agent/creative/test-results/
 !Course-Agent/creative/tests/lib/**
 !.env.example
 !**/.env.example
+!backend/agent/.env
