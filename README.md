@@ -31,8 +31,6 @@
 | 真实课程数据 | 提供完整课程 DAG 和 Markdown/PDF/DOCX/PPTX/视频等资料，启动时同步、索引并只读预览 | `knowledge_base/`、`/api/course/*` |
 | 进度与稳定性 | SSE 心跳、事件序号去重、任务快照、断线恢复、幂等键、错误码和重试边界 | `lib/sse/`、`backend/app/tasks/` |
 
-完整页面、接口和演示步骤分别见 [组件说明](docs/components.md)、[接口接入说明](docs/api-integration.md) 与 [演示脚本](docs/demo-script.md)。
-
 ## 已实现功能
 
 ### 学习入口与画像
@@ -154,8 +152,6 @@ A3/
 │   └── Dockerfile
 ├── knowledge_base/                 # 课程 DAG、真实资料、校验和索引工具
 ├── infra/nginx/                    # Web/API/媒体同源反向代理和 SSE 配置
-├── docs/                           # 组件、接口、部署、演示和设计记录
-├── artifacts/                      # 评审截图、演示视频与产物说明
 ├── docker-compose.yml              # Web + API + Nginx + 持久卷
 ├── start.ps1 / start.sh            # Windows / Linux 本地启动
 ├── .env.example                    # 无密钥环境变量模板
@@ -253,8 +249,6 @@ Compose 包含 API、Next.js standalone Web、Nginx 和持久卷。生产环境�
 - 备份 `zhixue-data` 持久卷中的 SQLite 数据。
 - 将正式域名加入 `WEB_ORIGINS`，避免跨域和混合内容问题。
 
-完整配置与证书示例见 [部署文档](docs/deployment.md)。
-
 ## 测试与质量检查
 
 ```powershell
@@ -264,20 +258,10 @@ pnpm --dir Course-Agent/creative typecheck
 pnpm --dir Course-Agent/creative test
 pnpm --dir Course-Agent/creative build
 pnpm --dir Course-Agent/creative test:e2e
-powershell -ExecutionPolicy Bypass -File docs/test-documentation.ps1
 docker compose config --quiet
 ```
 
 测试覆盖后端仓储与 API、SSE 顺序和恢复、Mock/Remote/Local Provider、前端业务组件、错误状态、关键浏览器流程、响应式布局和无障碍检查。仓库中的历史验证结果仅代表对应提交；发布前应在目标环境重新执行。
-
-## 演示与交付证据
-
-- [演示产物索引](artifacts/README.md)
-- `artifacts/screenshots/`：关键业务页面和异常状态截图。
-- `artifacts/demo/zhixue-main-flow.webm`：主流程演示录屏。
-- [7 分钟答辩演示脚本](docs/demo-script.md)
-
-当前展示页已升级为沉浸式版本；若旧截图与运行页面不一致，应重新执行视觉捕获后再用于答辩材料。
 
 ## 安全、可靠性与内容边界
 
@@ -291,16 +275,6 @@ docker compose config --quiet
 ## AI Coding 使用说明
 
 本项目开发过程中使用了 OpenAI Codex 等 AI Coding 工具辅助需求梳理、代码实现、测试诊断、浏览器验证和文档整理。AI 工具输出不作为功能完成的唯一依据；最终说明以仓库源码、接口契约、测试结果和人工审阅为准。使用第三方 AI 服务时应遵守比赛规则、服务条款与数据安全要求。
-
-## 文档索引
-
-- [前端页面与组件边界](docs/components.md)
-- [FastAPI 网关与 Agent 接口](docs/api-integration.md)
-- [本地和云端部署](docs/deployment.md)
-- [答辩演示脚本](docs/demo-script.md)
-- [本地 Agent 使用手册](backend/agent/README.md)
-- [课程知识库搭建指南](knowledge_base/README.md)
-- [截图与演示产物](artifacts/README.md)
 
 ## 当前外部依赖与限制
 

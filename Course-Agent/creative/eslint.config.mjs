@@ -13,7 +13,6 @@ const config = [
       "next-env.d.ts",
       "node_modules/**",
       "out/**",
-      "pointer-ai-landing-page/**",
     ],
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),

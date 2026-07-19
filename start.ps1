@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Backend = Join-Path $Root 'backend'
 $Frontend = Join-Path $Root 'Course-Agent\creative'
-$Logs = Join-Path $Root 'artifacts\logs'
+$Logs = Join-Path $Root '.runtime\logs'
 $Python = Join-Path $Backend '.venv\Scripts\python.exe'
 
 function Get-AvailablePort([int]$PreferredPort) {
