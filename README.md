@@ -16,7 +16,7 @@
 - 将练习、资源浏览、路径进度和提问记录沉淀为评估与复习依据。
 - 使用统一任务事件展示 Agent、进度、局部失败和可重试状态，避免长时间白屏。
 
-项目不把 Mock 数据或接口占位描述为真实多模态生成成果。Mock 模式用于可重复的完整流程演示；Local 模式调用仓库内本地 Agent；Remote 模式对接外部多智能体服务。真实图片、视频或远程模型输出必须来自实际课程素材或已配置的 Agent 服务。
+
 
 ## 赛题需求与实现对应
 
@@ -57,7 +57,6 @@
 ### 课程、工程与异常状态
 
 - 真实 Markdown、PDF、DOCX、PPTX、图片、代码和视频资料索引与只读浏览。
-- Mock/Local/Remote Agent 显式切换；Remote 失败默认不会静默伪装成 Mock 成功。
 - 统一加载、空状态、离线提示、错误边界、错误码和 `trace_id`。
 - Windows/Linux 启动脚本、Docker Compose、Nginx 同源代理、SSE 配置和 SQLite 持久卷。
 
@@ -218,7 +217,6 @@ REMOTE_AGENT_TIMEOUT_SECONDS=120
 ALLOW_MOCK_FALLBACK=false
 ```
 
-远程模式默认不静默降级。只有显式设置 `ALLOW_MOCK_FALLBACK=true` 时才使用 Mock 兜底，事件会持续携带 `demo_mode=true`。所有密钥只写入未跟踪的 `.env` 或云平台 Secret。
 
 ## 课程知识库
 
@@ -274,7 +272,7 @@ docker compose config --quiet
 
 ## AI Coding 使用说明
 
-本项目开发过程中使用了 OpenAI Codex 等 AI Coding 工具辅助需求梳理、代码实现、测试诊断、浏览器验证和文档整理。AI 工具输出不作为功能完成的唯一依据；最终说明以仓库源码、接口契约、测试结果和人工审阅为准。使用第三方 AI 服务时应遵守比赛规则、服务条款与数据安全要求。
+本项目开发过程中使用了 讯飞星火llm、OpenAI Codex 等 AI Coding 工具辅助需求梳理、代码实现、测试诊断、浏览器验证和文档整理。AI 工具输出不作为功能完成的唯一依据；最终说明以仓库源码、接口契约、测试结果和人工审阅为准。使用第三方 AI 服务时应遵守比赛规则、服务条款与数据安全要求。
 
 ## 当前外部依赖与限制
 
