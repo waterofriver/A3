@@ -4,8 +4,13 @@ export type LearningEventType =
   | "resource_opened"
   | "resource_closed"
   | "path_node_completed"
+  | "path_node_reset"
   | "question_asked"
   | "video_progress"
+
+export function pathNodeEventType(completed: boolean): "path_node_completed" | "path_node_reset" {
+  return completed ? "path_node_completed" : "path_node_reset"
+}
 
 export type LearningEventInput = {
   event_type: LearningEventType

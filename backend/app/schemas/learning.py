@@ -7,6 +7,7 @@ LearningEventType = Literal[
     "resource_opened",
     "resource_closed",
     "path_node_completed",
+    "path_node_reset",
     "question_asked",
     "video_progress",
 ]

@@ -57,7 +57,7 @@ class LearningEventService:
                             message="学习事件引用了无效路径节点。",
                             retryable=False,
                         )
-                elif event.event_type == "path_node_completed":
+                elif event.event_type in {"path_node_completed", "path_node_reset"}:
                     raise AppError(
                         status_code=400,
                         code="VALIDATION_ERROR",
@@ -88,6 +88,8 @@ class LearningEventService:
                 event = item.event
                 if event.event_type == "path_node_completed":
                     repository.complete_path_node(event.path_node_id)
+                elif event.event_type == "path_node_reset":
+                    repository.reset_path_node(event.path_node_id)
                 repository.record_learning_event(
                     user_id=payload.user_id,
                     course_name=payload.course_name,

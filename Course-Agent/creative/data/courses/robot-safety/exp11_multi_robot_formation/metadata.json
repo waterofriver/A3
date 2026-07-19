@@ -1,0 +1,31 @@
+{
+  "id": "exp11_multi_robot_formation",
+  "name": "实验十一：多机编队实验",
+  "description": "在前序机器人控制基础上完成多机编队与协同控制，体现综合实验能力。",
+  "category": "综合实验",
+  "keywords": [
+    "多机编队",
+    "协同控制",
+    "综合实验"
+  ],
+  "files": [
+    {
+      "name": "110_实验11 多机编队实验.docx",
+      "path": "110_实验11 多机编队实验.docx",
+      "file_type": "docx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 1134153
+    },
+    {
+      "name": "metadata.json",
+      "path": "metadata.json",
+      "file_type": "json",
+      "resource_type": "supplementary",
+      "previewable": false,
+      "retrievable": true,
+      "size_bytes": 619
+    }
+  ]
+}

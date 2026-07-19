@@ -83,6 +83,15 @@ class LearningRepository:
             self.session.flush()
         return node
 
+    def reset_path_node(self, node_id: str) -> LearningPathNode:
+        node = self.session.get(LearningPathNode, node_id)
+        if node is None:
+            raise LookupError(node_id)
+        if node.completed_at is not None:
+            node.completed_at = None
+            self.session.flush()
+        return node
+
     def record_quiz_attempt(
         self,
         *,

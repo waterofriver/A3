@@ -1,0 +1,31 @@
+{
+  "id": "network_environment_setup",
+  "name": "网络环境与基础连通性",
+  "description": "配置实验所需网络条件，理解基础连通性和实验拓扑，为攻防实验打底。",
+  "category": "基础准备",
+  "keywords": [
+    "网络环境",
+    "连通性",
+    "拓扑"
+  ],
+  "files": [
+    {
+      "name": "00实验先导即网络环境配置.docx",
+      "path": "00实验先导即网络环境配置.docx",
+      "file_type": "docx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 1113760
+    },
+    {
+      "name": "metadata.json",
+      "path": "metadata.json",
+      "file_type": "json",
+      "resource_type": "supplementary",
+      "previewable": false,
+      "retrievable": true,
+      "size_bytes": 613
+    }
+  ]
+}

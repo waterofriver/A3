@@ -17,7 +17,7 @@ function ScoreMetric({
   const normalized = Math.max(0, Math.min(100, score))
 
   return (
-    <article className="h-[164px] rounded-2xl border border-slate-200 bg-white p-5.5 shadow-sm hover:shadow hover:border-slate-300 transition-all duration-200">
+    <article className="h-[164px] rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow hover:border-slate-300 transition-all duration-200">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>

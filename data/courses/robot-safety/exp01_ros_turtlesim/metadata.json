@@ -1,0 +1,85 @@
+{
+  "id": "exp01_ros_turtlesim",
+  "name": "实验一：ROS 进阶与小乌龟",
+  "description": "通过 turtlesim 认识 ROS 的基本通信和控制方式，建立机器人实验的最小实践闭环。",
+  "category": "ROS 基础",
+  "keywords": [
+    "ROS",
+    "turtlesim",
+    "入门实验"
+  ],
+  "files": [
+    {
+      "name": "10_实验一 ROS进阶—玩转小乌龟.docx",
+      "path": "10_实验一 ROS进阶—玩转小乌龟.docx",
+      "file_type": "docx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 1097246
+    },
+    {
+      "name": "11_实验一 ROS进阶—玩转小乌龟.pdf",
+      "path": "11_实验一 ROS进阶—玩转小乌龟.pdf",
+      "file_type": "pdf",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 1206284
+    },
+    {
+      "name": "11_实验一 ROS进阶—玩转小乌龟.pptx",
+      "path": "11_实验一 ROS进阶—玩转小乌龟.pptx",
+      "file_type": "pptx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 3196657
+    },
+    {
+      "name": "metadata.json",
+      "path": "metadata.json",
+      "file_type": "json",
+      "resource_type": "supplementary",
+      "previewable": false,
+      "retrievable": true,
+      "size_bytes": 2213
+    },
+    {
+      "name": "turtle_for_circle.py",
+      "path": "turtle_for_circle.py",
+      "file_type": "py",
+      "resource_type": "code",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 1005
+    },
+    {
+      "name": "turtlesim.py",
+      "path": "turtlesim.py",
+      "file_type": "py",
+      "resource_type": "code",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 1872
+    },
+    {
+      "name": "实验一 ROS进阶—玩转小乌龟演示视频.mp4",
+      "path": "实验一 ROS进阶—玩转小乌龟演示视频.mp4",
+      "file_type": "mp4",
+      "resource_type": "video",
+      "previewable": false,
+      "retrievable": true,
+      "size_bytes": 81474490
+    },
+    {
+      "name": "补充python脚本使用.txt",
+      "path": "补充python脚本使用.txt",
+      "file_type": "txt",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 294
+    }
+  ]
+}

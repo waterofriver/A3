@@ -8,6 +8,7 @@ import { ProfileSummary } from "@/components/learning-path/profile-summary"
 import { LearningPathGraph } from "@/components/learning-path/learning-path-graph"
 import { ErrorNotice } from "@/components/shared/error-notice"
 import { apiFetch } from "@/lib/api/client"
+import { pathNodeEventType } from "@/lib/api/learning-events"
 import type { LearningPathData } from "@/lib/api/learning-path-types"
 import type { CourseSummary } from "@/lib/api/resource-types"
 import { getUserId } from "@/lib/session/user-session"
@@ -40,8 +41,8 @@ export default function LearningPathPage() {
 
   const queryClient = useQueryClient()
 
-  const handleNodeComplete = async (nodeId: string, stageName: string) => {
-    if (!userId || !course?.name) return
+  const handleNodeToggle = async (nodeId: string, _stageName: string, completed: boolean) => {
+    if (!userId || !course?.name) return false
     try {
       await apiFetch("/api/learning/events", {
         method: "POST",
@@ -50,7 +51,7 @@ export default function LearningPathPage() {
           course_name: course.name,
           events: [
             {
-              event_type: "path_node_completed",
+              event_type: pathNodeEventType(completed),
               path_node_id: nodeId,
               client_started_at: new Date().toISOString(),
             },
@@ -59,7 +60,9 @@ export default function LearningPathPage() {
       })
       // 刷新路径数据使节点变绿
       queryClient.invalidateQueries({ queryKey: ["path", userId, course.name] })
+      return true
     } catch {
+      return false
       // 静默失败
     }
   }
@@ -96,7 +99,7 @@ export default function LearningPathPage() {
           <LearningPathGraph
             nodes={pathQuery.data.nodes}
             onOpenResource={(resourceId) => router.push(`/resources/${resourceId}`)}
-            onCompleteNode={handleNodeComplete}
+            onToggleNode={handleNodeToggle}
           />
         </div>
       ) : (

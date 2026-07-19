@@ -1,0 +1,103 @@
+{
+  "id": "exp06_mitm_attack",
+  "name": "实验六：中间人攻击",
+  "description": "通过中间人攻击实验理解流量劫持、数据篡改和攻击链路分析。",
+  "category": "网络攻防",
+  "keywords": [
+    "MITM",
+    "流量劫持",
+    "安全分析"
+  ],
+  "files": [
+    {
+      "name": "60_实验六 中间人攻击.docx",
+      "path": "60_实验六 中间人攻击.docx",
+      "file_type": "docx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 1473453
+    },
+    {
+      "name": "60_实验六 中间人攻击补丁.docx",
+      "path": "60_实验六 中间人攻击补丁.docx",
+      "file_type": "docx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 23802
+    },
+    {
+      "name": "61_实验六 中间人攻击.pdf",
+      "path": "61_实验六 中间人攻击.pdf",
+      "file_type": "pdf",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 1484640
+    },
+    {
+      "name": "61_实验六 中间人攻击.pptx",
+      "path": "61_实验六 中间人攻击.pptx",
+      "file_type": "pptx",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 1175220
+    },
+    {
+      "name": "62_实验六-Arp攻击-可能出现的问题.pdf",
+      "path": "62_实验六-Arp攻击-可能出现的问题.pdf",
+      "file_type": "pdf",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 556567
+    },
+    {
+      "name": "arpcheat.py",
+      "path": "arpcheat.py",
+      "file_type": "py",
+      "resource_type": "code",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 2444
+    },
+    {
+      "name": "datacheat.py",
+      "path": "datacheat.py",
+      "file_type": "py",
+      "resource_type": "code",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 3944
+    },
+    {
+      "name": "metadata.json",
+      "path": "metadata.json",
+      "file_type": "json",
+      "resource_type": "supplementary",
+      "previewable": false,
+      "retrievable": true,
+      "size_bytes": 2647
+    },
+    {
+      "name": "实验六 中间人攻击演示视频.mp4",
+      "path": "实验六 中间人攻击演示视频.mp4",
+      "file_type": "mp4",
+      "resource_type": "video",
+      "previewable": false,
+      "retrievable": true,
+      "size_bytes": 93026824
+    },
+    {
+      "name": "实验六操作全流程.txt",
+      "path": "实验六操作全流程.txt",
+      "file_type": "txt",
+      "resource_type": "lecture",
+      "previewable": true,
+      "retrievable": true,
+      "size_bytes": 3052
+    }
+  ]
+}

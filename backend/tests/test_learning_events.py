@@ -47,6 +47,43 @@ def test_learning_events_complete_path_nodes_idempotently(client, seeded_path_no
     assert second.json()["data"]["accepted"] == 1
 
 
+def test_learning_events_reset_completed_path_nodes(client, seeded_path_node):
+    complete = client.post(
+        "/api/learning/events",
+        json={
+            "user_id": "event-student",
+            "course_name": "机器人操作系统",
+            "events": [
+                {
+                    "event_type": "path_node_completed",
+                    "path_node_id": seeded_path_node.id,
+                    "metadata": {},
+                }
+            ],
+        },
+    )
+    reset = client.post(
+        "/api/learning/events",
+        json={
+            "user_id": "event-student",
+            "course_name": "机器人操作系统",
+            "events": [
+                {
+                    "event_type": "path_node_reset",
+                    "path_node_id": seeded_path_node.id,
+                    "metadata": {},
+                }
+            ],
+        },
+    )
+
+    assert complete.status_code == 200
+    assert reset.status_code == 200
+    with client.app.state.db.session() as session:
+        node = LearningRepository(session).list_path_nodes(seeded_path_node.path_id)[0]
+        assert node.completed_at is None
+
+
 def test_learning_events_reject_end_before_start(client):
     response = client.post(
         "/api/learning/events",

